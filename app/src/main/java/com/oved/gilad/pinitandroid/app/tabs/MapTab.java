@@ -1,8 +1,10 @@
 package com.oved.gilad.pinitandroid.app.tabs;
 
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,7 +34,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class MapTab extends Fragment implements GoogleMap.OnInfoWindowClickListener, OnMapReadyCallback {
+public class MapTab extends Fragment {
 
     List<Pin> pins;
     MapView mapView;
@@ -87,6 +89,24 @@ public class MapTab extends Fragment implements GoogleMap.OnInfoWindowClickListe
                         }
 
                         map.moveCamera(CameraUpdateFactory.newLatLngBounds(boundsBuilder.build(), 50));
+                        map.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
+                            @Override
+                            public void onInfoWindowClick(Marker marker) {
+                                Pin chosenPin = markersToPins.get(marker);
+
+                                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                                builder.setMessage(chosenPin.getDescription() + "\n" + chosenPin.getDirections())
+                                        .setTitle(chosenPin.getName())
+                                        .setCancelable(false)
+                                        .setPositiveButton("Okay", new DialogInterface.OnClickListener() {
+                                            public void onClick(DialogInterface dialog, int id) {
+                                                dialog.dismiss();
+                                            }
+                                        });
+                                AlertDialog alert = builder.create();
+                                alert.show();
+                            }
+                        });
                     } else {
                         Constants.Error("Error getting the pins");
                     }
@@ -118,17 +138,5 @@ public class MapTab extends Fragment implements GoogleMap.OnInfoWindowClickListe
     public void onLowMemory() {
         super.onLowMemory();
         mapView.onLowMemory();
-    }
-
-    @Override
-    public void onMapReady(GoogleMap googleMap) {
-        map = googleMap;
-        map.setOnInfoWindowClickListener(this);
-    }
-
-    @Override
-    public void onInfoWindowClick(Marker marker) {
-        Constants.Log("WOOOORKED");
-        Toast.makeText(getActivity().getApplicationContext(), "Info window clicked: " + markersToPins.get(marker).getDirections(), Toast.LENGTH_SHORT).show();
     }
 }

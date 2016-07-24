@@ -82,8 +82,6 @@ public class ListViewAdapter extends ArrayAdapter<Pin> {
                                 remove(pins.get(position));
                                 notifyDataSetChanged();
 
-                                pins.remove(position);
-
                                 //TODO: call delete pin in the backend to actually remove pin
                             }
                         }
