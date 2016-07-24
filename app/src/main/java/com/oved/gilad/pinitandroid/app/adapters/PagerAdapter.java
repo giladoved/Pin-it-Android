@@ -1,12 +1,12 @@
-package com.oved.gilad.pinitandroid.app;
+package com.oved.gilad.pinitandroid.app.adapters;
 
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 
-import com.oved.gilad.pinitandroid.app.tabs.AddPin;
-import com.oved.gilad.pinitandroid.app.tabs.ListView;
-import com.oved.gilad.pinitandroid.app.tabs.MapView;
+import com.oved.gilad.pinitandroid.app.tabs.AddTab;
+import com.oved.gilad.pinitandroid.app.tabs.ListTab;
+import com.oved.gilad.pinitandroid.app.tabs.MapTab;
 
 /**
  * Created by gilad on 7/23/16.
@@ -24,16 +24,16 @@ public class PagerAdapter extends FragmentStatePagerAdapter {
 
         switch (position) {
             case 0:
-                AddPin tab1 = new AddPin();
+                AddTab tab1 = new AddTab();
                 return tab1;
             case 1:
-                MapView tab2 = new MapView();
+                ListTab tab2 = new ListTab();
                 return tab2;
             case 2:
-                ListView tab3 = new ListView();
+                MapTab tab3 = new MapTab();
                 return tab3;
             default:
-                tab1 = new AddPin();
+                tab1 = new AddTab();
                 return tab1;
         }
     }

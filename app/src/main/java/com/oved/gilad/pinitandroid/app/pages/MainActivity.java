@@ -27,7 +27,7 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.location.LocationSettingsStatusCodes;
 import com.oved.gilad.pinitandroid.R;
-import com.oved.gilad.pinitandroid.app.PagerAdapter;
+import com.oved.gilad.pinitandroid.app.adapters.PagerAdapter;
 import com.oved.gilad.pinitandroid.models.Position;
 import com.oved.gilad.pinitandroid.utils.Constants;
 
@@ -46,9 +46,9 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         setSupportActionBar(toolbar);
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tab_layout);
-        tabLayout.addTab(tabLayout.newTab().setText("Add Pin"));
-        tabLayout.addTab(tabLayout.newTab().setText("List"));
-        tabLayout.addTab(tabLayout.newTab().setText("Map"));
+        tabLayout.addTab(tabLayout.newTab().setIcon(R.drawable.addicon));
+        tabLayout.addTab(tabLayout.newTab().setIcon(R.drawable.listicon));
+        tabLayout.addTab(tabLayout.newTab().setIcon(R.drawable.mapicon));
         tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
 
         final ViewPager viewPager = (ViewPager) findViewById(R.id.pager);

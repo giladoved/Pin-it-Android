@@ -4,41 +4,67 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+        <LinearLayout
+            android:padding="10dp"
+            android:layout_marginBottom="10dp"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <EditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/pinTitleTxt"
+                android:layout_marginTop="20dp"
+                android:layout_gravity="center_horizontal"
+                android:textColorHint="#888888"
+                android:hint="Title your new pin"
+                android:textSize="16sp"
+                android:singleLine="true" />
+
+            <EditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/pinDescriptionTxt"
+                android:layout_marginTop="20dp"
+                android:layout_gravity="center_horizontal"
+                android:textColorHint="#888888"
+                android:hint="Describe it"
+                android:singleLine="true"
+                android:textSize="16sp"/>
+
+            <EditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/pinDirectionsTxt"
+                android:layout_marginTop="20dp"
+                android:layout_gravity="center_horizontal"
+                android:textColorHint="#888888"
+                android:hint="How to find it again"
+                android:singleLine="true"
+                android:textSize="16sp"/>
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Add Pin"
+                android:id="@+id/addPinBtn"
+                android:layout_gravity="center_horizontal"
+                android:textColor="#FFFFFF"
+                android:textSize="22sp"
+                android:padding="15dp"
+                android:background="@color/colorPrimary"
+                android:elegantTextHeight="false"
+                android:layout_marginTop="20dp"
+                android:bottomRightRadius="10dp"
+                android:bottomLeftRadius="10dp"
+                android:topLeftRadius="10dp"
+                android:topRightRadius="10dp"/>
+        </LinearLayout>
+
     <com.google.android.gms.maps.MapView
         android:layout_width="match_parent"
-        android:layout_height="200dp"
+        android:layout_height="match_parent"
         android:id="@+id/addPinMap"></com.google.android.gms.maps.MapView>
-
-    <!-- TODO: Update blank fragment layout -->
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="0.0, 0.0" />
-
-    <EditText
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/editText"
-        android:layout_gravity="center_horizontal"
-        android:hint="Enter the title of your new pin"
-        android:textSize="18sp" />
-
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Add Pin"
-        android:id="@+id/addPinBtn"
-        android:layout_gravity="center_horizontal"
-        android:textColor="#FFFFFF"
-        android:textSize="24sp"
-        android:padding="15dp"
-        android:background="#1B5E20"
-        android:elegantTextHeight="false"
-        android:layout_marginTop="20dp"
-        android:bottomRightRadius="10dp"
-        android:bottomLeftRadius="10dp"
-        android:topLeftRadius="10dp"
-        android:topRightRadius="10dp"/>
 
 </LinearLayout>

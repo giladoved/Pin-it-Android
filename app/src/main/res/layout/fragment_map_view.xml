@@ -2,12 +2,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".app.tabs.AddPin">
+    tools:context=".app.tabs.AddTab">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
+    <com.google.android.gms.maps.MapView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:text="map view!" />
+        android:id="@+id/mapTabMap">
+    </com.google.android.gms.maps.MapView>
 
 </FrameLayout>

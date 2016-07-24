@@ -23,6 +23,7 @@ public class Constants {
     // The minimum time between updates in milliseconds
     public static final long LOCATION_UPDATE_TIME = 1000 * 30;
 
+    public static final String GOOGLE_MAPS_API = "AIzaSyBx-NiWfMiom5MP4OMVVpPVa8I91X8XbHM";
 
     public static void Log(String message) {
         Log.d(TAG, message);

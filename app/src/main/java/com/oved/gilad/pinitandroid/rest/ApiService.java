@@ -3,7 +3,11 @@ package com.oved.gilad.pinitandroid.rest;
 /**
  * Created by gilad on 7/23/16.
  */
+
+import com.oved.gilad.pinitandroid.models.Pin;
 import com.oved.gilad.pinitandroid.models.User;
+
+import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.http.Body;
@@ -21,4 +25,10 @@ public interface ApiService {
 
     @POST("/users/register")
     public Call<User> registerUser(@Body User user);
+
+    @POST("/pins/new")
+    public Call<Pin> addPin(@Body Pin pin);
+
+    @GET("/pins/all/{user_id}")
+    public Call<List<Pin>> getAllPins(@Path("user_id") String user_id);
 }
