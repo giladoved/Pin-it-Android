@@ -1,18 +1,18 @@
 package com.oved.gilad.pinitandroid.app.tabs;
 
 import android.content.SharedPreferences;
-import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
-import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
+import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
@@ -22,30 +22,30 @@ import com.oved.gilad.pinitandroid.R;
 import com.oved.gilad.pinitandroid.models.Pin;
 import com.oved.gilad.pinitandroid.rest.ApiServiceBuilder;
 import com.oved.gilad.pinitandroid.utils.Constants;
-import com.oved.gilad.pinitandroid.utils.PubSubBus;
-import com.squareup.otto.Bus;
-import com.squareup.otto.Subscribe;
 
-import java.io.Console;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class MapTab extends Fragment {
+public class MapTab extends Fragment implements GoogleMap.OnInfoWindowClickListener, OnMapReadyCallback {
 
     List<Pin> pins;
     MapView mapView;
     GoogleMap map;
     List<Marker> markers;
+    Map<Marker, Pin> markersToPins;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View inflatedView = inflater.inflate(R.layout.fragment_map_view, container, false);
 
         markers = new ArrayList<>();
+        markersToPins = new HashMap<>();
 
         mapView = (MapView) inflatedView.findViewById(R.id.mapTabMap);
         mapView.onCreate(savedInstanceState);
@@ -80,8 +80,10 @@ public class MapTab extends Fragment {
                             Marker marker = map.addMarker(new MarkerOptions()
                                     .position(pinLocation)
                                     .title(pin.getName())
-                                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.pin)));
+                                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.pin))
+                                    .snippet(pin.getDescription()));
                             markers.add(marker);
+                            markersToPins.put(marker, pin);
                         }
 
                         map.moveCamera(CameraUpdateFactory.newLatLngBounds(boundsBuilder.build(), 50));
@@ -116,5 +118,17 @@ public class MapTab extends Fragment {
     public void onLowMemory() {
         super.onLowMemory();
         mapView.onLowMemory();
+    }
+
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        map = googleMap;
+        map.setOnInfoWindowClickListener(this);
+    }
+
+    @Override
+    public void onInfoWindowClick(Marker marker) {
+        Constants.Log("WOOOORKED");
+        Toast.makeText(getActivity().getApplicationContext(), "Info window clicked: " + markersToPins.get(marker).getDirections(), Toast.LENGTH_SHORT).show();
     }
 }
