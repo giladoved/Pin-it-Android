@@ -1,17 +1,64 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent">
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/colorAccent"
+    android:orientation="horizontal"
+    android:padding="5dp" >
 
     <TextView
         android:id="@+id/titleTxt"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Title" />
+        android:text="Title"
+        android:textColor="#040404"
+        android:typeface="sans"
+        android:textSize="15dp"
+        android:padding="5dp"
+        android:textStyle="bold"/>
+
     <TextView
-        android:id="@+id/locationTxt"
+        android:id="@+id/descriptionTxt"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/titleTxt"
+        android:textColor="#343434"
+        android:textSize="13sp"
+        android:padding="5dp"
+        android:layout_marginTop="1dp"
+        android:text="Description goes here..." />
+
+    <TextView
+        android:id="@+id/directionsTxt"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/descriptionTxt"
+        android:textColor="#343434"
+        android:textSize="13sp"
+        android:padding="5dp"
+        android:layout_marginTop="1dp"
+        android:text="Direction to get here..." />
+
+    <TextView
+        android:id="@+id/dateCreatedTxt"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="0.0, 0.0" />
+        android:layout_alignParentRight="true"
+        android:layout_alignTop="@id/titleTxt"
+        android:gravity="right"
+        android:text="5:45 July 12"
+        android:layout_marginRight="5dp"
+        android:textSize="12sp"
+        android:textColor="@color/colorPrimaryDark"
+        android:textStyle="bold"/>
 
-</LinearLayout>
+
+    <ImageButton android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@android:color/transparent"
+        android:src="@drawable/navicon"
+        android:id="@+id/navigateBtn"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"/>
+
+</RelativeLayout>
