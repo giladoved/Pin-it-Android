@@ -1,8 +1,11 @@
 package com.oved.gilad.pinitandroid.app.tabs;
 
+import android.Manifest;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.location.Location;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
@@ -55,6 +58,7 @@ public class AddTab extends Fragment implements View.OnClickListener {
 
         addPinBtn = (Button) inflatedView.findViewById(R.id.addPinBtn);
         addPinBtn.setOnClickListener(this);
+        addPinBtn.setEnabled(false);
 
         mapView = (MapView) inflatedView.findViewById(R.id.addPinMap);
         mapView.onCreate(savedInstanceState);
@@ -70,6 +74,7 @@ public class AddTab extends Fragment implements View.OnClickListener {
 
     @Subscribe
     public void getLocation(Location location) {
+        addPinBtn.setEnabled(true);
         this.location = location;
 
         CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(new LatLng(location.getLatitude(), location.getLongitude()), 20);
@@ -106,8 +111,6 @@ public class AddTab extends Fragment implements View.OnClickListener {
             return;
         }
 
-        Constants.Log("userid!!: " + userId);
-
         final String pinTitle = pinTitleTxt.getText().toString().toLowerCase().trim();
         final String pinDescription = pinDescriptionTxt.getText().toString().toLowerCase().trim();
         final String pinDirections = pinDirectionsTxt.getText().toString().toLowerCase().trim();
@@ -133,7 +136,7 @@ public class AddTab extends Fragment implements View.OnClickListener {
                     builder.setMessage("Keep on exploring")
                             .setTitle("Pinned it!")
                             .setCancelable(false)
-                            .setPositiveButton("Let's go", new DialogInterface.OnClickListener() {
+                            .setPositiveButton("OKAY", new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int id) {
                                     pinTitleTxt.setText("");
                                     pinDescriptionTxt.setText("");

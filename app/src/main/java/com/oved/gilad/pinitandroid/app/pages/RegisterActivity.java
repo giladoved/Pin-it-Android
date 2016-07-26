@@ -7,6 +7,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import com.oved.gilad.pinitandroid.R;
 import com.oved.gilad.pinitandroid.models.User;
@@ -32,7 +33,7 @@ public class RegisterActivity extends AppCompatActivity {
         signupBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String name = nameTxt.getText().toString().toLowerCase().trim();
+                String name = nameTxt.getText().toString().trim();
                 if (name.length() < 2) {
                     //invalid input
                     Constants.Toast(RegisterActivity.this, "Please enter a valid name");
@@ -64,6 +65,11 @@ public class RegisterActivity extends AppCompatActivity {
                         @Override
                         public void onFailure(Call<User> call, Throwable t) {
                             Constants.Error(t.getLocalizedMessage());
+
+                            Toast.makeText(getApplicationContext(), "That username already exists. Please choose another one.", Toast.LENGTH_SHORT).show();
+
+                            nameTxt.setText("");
+                            nameTxt.requestFocus();
                         }
                     });
                 }

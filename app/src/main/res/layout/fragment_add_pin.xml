@@ -19,6 +19,7 @@
                 android:layout_gravity="center_horizontal"
                 android:textColorHint="#888888"
                 android:hint="Title your new pin"
+                android:maxLength="50"
                 android:textSize="16sp"
                 android:singleLine="true" />
 
@@ -31,6 +32,7 @@
                 android:textColorHint="#888888"
                 android:hint="Describe it"
                 android:singleLine="true"
+                android:maxLength="100"
                 android:textSize="16sp"/>
 
             <EditText
@@ -42,6 +44,7 @@
                 android:textColorHint="#888888"
                 android:hint="How to find it again"
                 android:singleLine="true"
+                android:maxLength="100"
                 android:textSize="16sp"/>
 
             <Button

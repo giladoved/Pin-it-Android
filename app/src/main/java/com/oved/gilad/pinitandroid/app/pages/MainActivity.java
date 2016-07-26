@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
@@ -147,10 +148,10 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == Constants.PERMISSIONS_REQUEST_LOCATION) {
             if (resultCode == RESULT_OK) {
-                Constants.Toast(getApplicationContext(), "GPS enabled");
+                //Constants.Toast(getApplicationContext(), "GPS enabled");
                 startLocationUpdates();
             } else {
-                Constants.Toast(getApplicationContext(), "GPS NOT enabled");
+                Constants.Toast(getApplicationContext(), "Please turn on your location services to use Pin it");
             }
         }
     }
@@ -193,7 +194,11 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.settingsBtn) {
-            Toast.makeText(MainActivity.this, "swagg", Toast.LENGTH_SHORT).show();
+            SharedPreferences settings = getSharedPreferences(Constants.PREFS_NAME, 0);
+            String username = settings.getString(Constants.NAME_KEY, null);
+            if (username != null) {
+                Toast.makeText(MainActivity.this, "Hello " + username + "!", Toast.LENGTH_SHORT).show();
+            }
             return true;
         }
 
