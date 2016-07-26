@@ -20,8 +20,7 @@ public class Constants {
 
     public static final int PERMISSIONS_REQUEST_LOCATION = 51;
 
-    // The minimum time between updates in milliseconds
-    public static final long LOCATION_UPDATE_TIME = 1000 * 30;
+    public static final long LOCATION_UPDATE_TIME = 1000 * 10;
 
     public static final String GOOGLE_MAPS_API = "AIzaSyBx-NiWfMiom5MP4OMVVpPVa8I91X8XbHM";
 

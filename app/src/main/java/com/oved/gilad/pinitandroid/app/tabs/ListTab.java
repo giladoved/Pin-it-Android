@@ -52,7 +52,7 @@ public class ListTab extends ListFragment {
         String userId = settings.getString(Constants.ID_KEY, null);
         if (userId != null) {
             Constants.Log("userid: " + userId);
-            final Call<List<Pin>> getAllPinsCall = ApiServiceBuilder.getInstance().api().getAllPins(userId);
+            final Call<List<Pin>> getAllPinsCall = ApiServiceBuilder.getInstance().api().getAllPins();
             getAllPinsCall.enqueue(new Callback<List<Pin>>() {
                 @Override
                 public void onResponse(Call<List<Pin>> call, Response<List<Pin>> response) {

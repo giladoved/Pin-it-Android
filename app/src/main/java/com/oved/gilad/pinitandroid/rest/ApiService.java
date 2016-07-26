@@ -29,6 +29,6 @@ public interface ApiService {
     @POST("/pins/new")
     public Call<Pin> addPin(@Body Pin pin);
 
-    @GET("/pins/all/{user_id}")
-    public Call<List<Pin>> getAllPins(@Path("user_id") String user_id);
+    @GET("/pins/all")
+    public Call<List<Pin>> getAllPins();
 }

@@ -61,7 +61,7 @@ public class MapTab extends Fragment {
         SharedPreferences settings = getActivity().getSharedPreferences(Constants.PREFS_NAME, 0);
         String userId = settings.getString(Constants.ID_KEY, null);
         if (userId != null) {
-            Call<List<Pin>> getAllPinsCall = ApiServiceBuilder.getInstance().api().getAllPins(userId);
+            Call<List<Pin>> getAllPinsCall = ApiServiceBuilder.getInstance().api().getAllPins();
             getAllPinsCall.enqueue(new Callback<List<Pin>>() {
                 @Override
                 public void onResponse(Call<List<Pin>> call, Response<List<Pin>> response) {
@@ -77,15 +77,17 @@ public class MapTab extends Fragment {
                         Constants.Log("pins size: " + pins.size());
                         for (Pin pin : pins) {
                             Constants.Log("found pin: " + pin.getLat() + " , " + pin.getLng());
-                            LatLng pinLocation = new LatLng(pin.getLat(), pin.getLng());
-                            boundsBuilder.include(pinLocation);
-                            Marker marker = map.addMarker(new MarkerOptions()
-                                    .position(pinLocation)
-                                    .title(pin.getName())
-                                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.pin))
-                                    .snippet(pin.getDescription()));
-                            markers.add(marker);
-                            markersToPins.put(marker, pin);
+                            if (pin != null) {
+                                LatLng pinLocation = new LatLng(pin.getLat(), pin.getLng());
+                                boundsBuilder.include(pinLocation);
+                                Marker marker = map.addMarker(new MarkerOptions()
+                                        .position(pinLocation)
+                                        .title(pin.getName())
+                                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.pin))
+                                        .snippet(pin.getDescription()));
+                                markers.add(marker);
+                                markersToPins.put(marker, pin);
+                            }
                         }
 
                         map.moveCamera(CameraUpdateFactory.newLatLngBounds(boundsBuilder.build(), 50));
