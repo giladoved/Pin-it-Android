@@ -16,7 +16,7 @@
 
     <LinearLayout
             android:id="@+id/addPinFormLayout"
-            android:padding="10dp"
+            android:padding="2dp"
             android:visibility="invisible"
             android:layout_marginBottom="10dp"
             android:layout_width="fill_parent"
@@ -27,7 +27,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:id="@+id/pinTitleTxt"
-                android:layout_marginTop="20dp"
+                android:layout_marginTop="5dp"
                 android:layout_gravity="center_horizontal"
                 android:textColorHint="#888888"
                 android:hint="Title your new pin"
@@ -39,7 +39,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:id="@+id/pinDescriptionTxt"
-                android:layout_marginTop="20dp"
+                android:layout_marginTop="15dp"
                 android:layout_gravity="center_horizontal"
                 android:textColorHint="#888888"
                 android:hint="Describe it"
@@ -51,7 +51,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:id="@+id/pinDirectionsTxt"
-                android:layout_marginTop="20dp"
+                android:layout_marginTop="15dp"
                 android:layout_gravity="center_horizontal"
                 android:textColorHint="#888888"
                 android:hint="How to find it again"
@@ -66,11 +66,11 @@
                 android:id="@+id/addPinBtn"
                 android:layout_gravity="center_horizontal"
                 android:textColor="#FFFFFF"
-                android:textSize="22sp"
-                android:padding="15dp"
+                android:textSize="20sp"
+                android:padding="12dp"
                 android:background="@color/colorPrimary"
                 android:elegantTextHeight="false"
-                android:layout_marginTop="20dp"
+                android:layout_marginTop="5dp"
                 android:bottomRightRadius="10dp"
                 android:bottomLeftRadius="10dp"
                 android:topLeftRadius="10dp"
@@ -79,7 +79,7 @@
 
     <com.google.android.gms.maps.MapView
         android:layout_width="match_parent"
-        android:layout_height="200dp"
+        android:layout_height="match_parent"
         android:visibility="invisible"
         android:id="@+id/addPinMap"></com.google.android.gms.maps.MapView>
 
