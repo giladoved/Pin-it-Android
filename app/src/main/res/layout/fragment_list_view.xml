@@ -6,6 +6,8 @@
 
     <ListView
         android:id="@android:id/list"
+        android:divider="#343434"
+        android:dividerHeight="2px"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
     </ListView>

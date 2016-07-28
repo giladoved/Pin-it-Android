@@ -31,8 +31,10 @@ import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.location.LocationSettingsStatusCodes;
 import com.oved.gilad.pinitandroid.R;
 import com.oved.gilad.pinitandroid.app.adapters.PagerAdapter;
-import com.oved.gilad.pinitandroid.models.Position;
 import com.oved.gilad.pinitandroid.utils.Constants;
+import com.oved.gilad.pinitandroid.utils.LastKnownLocation;
+import com.oved.gilad.pinitandroid.utils.PubSubBus;
+import com.squareup.otto.Bus;
 
 //http://stackoverflow.com/questions/30093673/use-the-android-default-gps-on-off-dialog-in-my-application?lq=1
 public class MainActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, ResultCallback, LocationListener {
@@ -41,6 +43,12 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     LocationRequest locationRequest;
     Location location;
 
+    ViewPager viewPager;
+    PagerAdapter adapter;
+    TabLayout tabLayout;
+
+    Bus bus;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -48,14 +56,16 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        TabLayout tabLayout = (TabLayout) findViewById(R.id.tab_layout);
+        bus = PubSubBus.getInstance();
+
+        tabLayout = (TabLayout) findViewById(R.id.tab_layout);
         tabLayout.addTab(tabLayout.newTab().setIcon(R.drawable.addicon));
         tabLayout.addTab(tabLayout.newTab().setIcon(R.drawable.listicon));
         tabLayout.addTab(tabLayout.newTab().setIcon(R.drawable.mapicon));
         tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
 
-        final ViewPager viewPager = (ViewPager) findViewById(R.id.pager);
-        final PagerAdapter adapter = new PagerAdapter
+        viewPager = (ViewPager) findViewById(R.id.pager);
+        adapter = new PagerAdapter
                 (getSupportFragmentManager(), tabLayout.getTabCount());
         viewPager.setAdapter(adapter);
         viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
@@ -90,6 +100,10 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
         locationRequest.setInterval(Constants.LOCATION_UPDATE_TIME);
         locationRequest.setFastestInterval(Constants.LOCATION_UPDATE_TIME);
+    }
+
+    public void openMap() {
+        viewPager.setCurrentItem(2);
     }
 
     @Override
@@ -176,12 +190,16 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     @Override
     public void onLocationChanged(Location location) {
         this.location = location;
-        Constants.Log("Found Location: " + location);
-        Position.setPosition(location);
+        LastKnownLocation.setLocation(location);
+        bus.post(location);
+        Constants.Log("Posted location: " + location.getLatitude() + ", " + location.getLongitude());
     }
 
     @Override
     public void onBackPressed() {
+        if (tabLayout.getSelectedTabPosition() == 2) {
+            viewPager.setCurrentItem(1);
+        }
     }
 
     @Override

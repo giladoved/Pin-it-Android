@@ -18,18 +18,14 @@ public class Pin {
     private String date_created;
 
     /**
-     *
-     * @return
-     * The id
+     * @return The id
      */
     public String getId() {
         return _id;
     }
 
     /**
-     *
-     * @param id
-     * The id
+     * @param id The _id
      */
     public void setId(String id) {
         this._id = id;

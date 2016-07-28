@@ -1,11 +1,8 @@
 package com.oved.gilad.pinitandroid.app.tabs;
 
-import android.Manifest;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.location.Location;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
@@ -14,6 +11,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdate;
@@ -26,6 +25,7 @@ import com.oved.gilad.pinitandroid.R;
 import com.oved.gilad.pinitandroid.models.Pin;
 import com.oved.gilad.pinitandroid.rest.ApiServiceBuilder;
 import com.oved.gilad.pinitandroid.utils.Constants;
+import com.oved.gilad.pinitandroid.utils.LastKnownLocation;
 import com.oved.gilad.pinitandroid.utils.PubSubBus;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
@@ -44,6 +44,10 @@ public class AddTab extends Fragment implements View.OnClickListener {
     EditText pinTitleTxt;
     EditText pinDescriptionTxt;
     EditText pinDirectionsTxt;
+    LinearLayout addPinFormLayout;
+    TextView lookingForLocationLbl;
+
+    Bus bus;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -55,6 +59,12 @@ public class AddTab extends Fragment implements View.OnClickListener {
         pinTitleTxt = (EditText) inflatedView.findViewById(R.id.pinTitleTxt);
         pinDescriptionTxt = (EditText) inflatedView.findViewById(R.id.pinDescriptionTxt);
         pinDirectionsTxt = (EditText) inflatedView.findViewById(R.id.pinDirectionsTxt);
+
+        lookingForLocationLbl = (TextView) inflatedView.findViewById(R.id.lookingForLocationLbl);
+
+        addPinFormLayout = (LinearLayout) inflatedView.findViewById(R.id.addPinFormLayout);
+
+        location = LastKnownLocation.getLocation();
 
         addPinBtn = (Button) inflatedView.findViewById(R.id.addPinBtn);
         addPinBtn.setOnClickListener(this);
@@ -74,11 +84,12 @@ public class AddTab extends Fragment implements View.OnClickListener {
 
     @Subscribe
     public void getLocation(Location location) {
-        addPinBtn.setEnabled(true);
-        this.location = location;
+        addPinFormLayout.setVisibility(View.VISIBLE);
+        lookingForLocationLbl.setVisibility(View.GONE);
+        mapView.setVisibility(View.VISIBLE);
 
-        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(new LatLng(location.getLatitude(), location.getLongitude()), 20);
-        map.animateCamera(cameraUpdate);
+        this.location = location;
+        map.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(location.getLatitude(), location.getLongitude()), 18));
     }
 
     @Override
@@ -102,6 +113,7 @@ public class AddTab extends Fragment implements View.OnClickListener {
     @Override
     public void onClick(View v) {
         if (location == null || (location.getLatitude() == 0 && location.getLongitude() == 0)) {
+            Toast.makeText(getActivity().getApplicationContext(), "Please wait until your location is found", Toast.LENGTH_SHORT).show();
             return;
         }
 

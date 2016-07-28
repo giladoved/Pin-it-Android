@@ -41,7 +41,6 @@ public class ListTab extends ListFragment {
                 android.R.color.holo_green_light,
                 android.R.color.holo_orange_light);
 
-
         loadPins();
 
         return inflatedView;

@@ -2,6 +2,7 @@ package com.oved.gilad.pinitandroid.app.tabs;
 
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
@@ -10,11 +11,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
-import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
@@ -24,6 +25,10 @@ import com.oved.gilad.pinitandroid.R;
 import com.oved.gilad.pinitandroid.models.Pin;
 import com.oved.gilad.pinitandroid.rest.ApiServiceBuilder;
 import com.oved.gilad.pinitandroid.utils.Constants;
+import com.oved.gilad.pinitandroid.utils.LastKnownLocation;
+import com.oved.gilad.pinitandroid.utils.PubSubBus;
+import com.squareup.otto.Bus;
+import com.squareup.otto.Subscribe;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -41,13 +46,21 @@ public class MapTab extends Fragment {
     GoogleMap map;
     List<Marker> markers;
     Map<Marker, Pin> markersToPins;
+    Map<String, Marker> pinsToMarkers;
+    Location location;
+
+    Bus bus;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View inflatedView = inflater.inflate(R.layout.fragment_map_view, container, false);
 
+        Bus bus = PubSubBus.getInstance();
+        bus.register(this);
+
         markers = new ArrayList<>();
         markersToPins = new HashMap<>();
+        pinsToMarkers = new HashMap<>();
 
         mapView = (MapView) inflatedView.findViewById(R.id.mapTabMap);
         mapView.onCreate(savedInstanceState);
@@ -58,8 +71,11 @@ public class MapTab extends Fragment {
 
         MapsInitializer.initialize(this.getActivity());
 
+        Location cachedLocation = LastKnownLocation.getLocation();
+        map.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(cachedLocation.getLatitude(), cachedLocation.getLongitude()), 11));
+
         SharedPreferences settings = getActivity().getSharedPreferences(Constants.PREFS_NAME, 0);
-        String userId = settings.getString(Constants.ID_KEY, null);
+        final String userId = settings.getString(Constants.ID_KEY, null);
         if (userId != null) {
             Call<List<Pin>> getAllPinsCall = ApiServiceBuilder.getInstance().api().getAllPins();
             getAllPinsCall.enqueue(new Callback<List<Pin>>() {
@@ -72,30 +88,28 @@ public class MapTab extends Fragment {
                             return;
                         }
 
-                        LatLngBounds.Builder boundsBuilder = new LatLngBounds.Builder();
-
-                        Constants.Log("pins size: " + pins.size());
                         for (Pin pin : pins) {
-                            Constants.Log("found pin: " + pin.getLat() + " , " + pin.getLng());
                             if (pin != null) {
                                 LatLng pinLocation = new LatLng(pin.getLat(), pin.getLng());
-                                boundsBuilder.include(pinLocation);
                                 Marker marker = map.addMarker(new MarkerOptions()
                                         .position(pinLocation)
                                         .title(pin.getName())
                                         .icon(BitmapDescriptorFactory.fromResource(R.drawable.pin))
                                         .snippet(pin.getDescription()));
+                                if (userId.equals(pin.getUserId())) {
+                                    marker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.pingrey));
+                                }
+
                                 markers.add(marker);
                                 markersToPins.put(marker, pin);
+                                pinsToMarkers.put(pin.getId(), marker);
                             }
                         }
 
-                        map.moveCamera(CameraUpdateFactory.newLatLngBounds(boundsBuilder.build(), 50));
                         map.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
                             @Override
                             public void onInfoWindowClick(Marker marker) {
                                 Pin chosenPin = markersToPins.get(marker);
-
                                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
                                 builder.setMessage(chosenPin.getDescription() + "\n" + chosenPin.getDirections())
                                         .setTitle(chosenPin.getName())
@@ -123,6 +137,34 @@ public class MapTab extends Fragment {
 
         return inflatedView;
     }
+
+    @Subscribe
+    public void getChosenMarker(String pid) {
+        Marker chosenMarker = pinsToMarkers.get(pid);
+        Constants.Log("Chosen marker: " + chosenMarker.getTitle());
+        chosenMarker.showInfoWindow();
+        Pin pin = markersToPins.get(chosenMarker);
+        map.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(pin.getLat(), pin.getLng()), 11));
+    }
+
+    @Subscribe
+    public void getLocation(Location location) {
+        if (this.location == null) {
+            //Bounding box
+            /*LatLngBounds.Builder builder = new LatLngBounds.Builder();
+            for (Marker marker : markers) {
+                builder.include(marker.getPosition());
+            }
+            LatLngBounds bounds = builder.build();
+            CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, 10);
+            map.animateCamera(cu);*/
+
+            //pin around current location
+            map.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(location.getLatitude(), location.getLongitude()), 11));
+        }
+        this.location = location;
+    }
+
 
     @Override
     public void onResume() {

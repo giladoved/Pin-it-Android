@@ -2,7 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
-    android:background="@color/colorPrimary"
+    android:background="@color/colorAccent"
     android:orientation="horizontal"
     android:padding="5dp" >
 
@@ -10,54 +10,27 @@
         android:id="@+id/titleTxt"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textColor="#ffffff"
+        android:textColor="#000000"
         android:typeface="sans"
         android:textSize="16dp"
         android:padding="5dp"
         android:textStyle="bold"
-        android:layout_toStartOf="@+id/dateCreatedTxt"
+        android:layout_toStartOf="@+id/navigateBtn"
         android:text="Title" />
 
     <TextView
-        android:id="@+id/descriptionTxt"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/titleTxt"
-        android:textColor="#DCDEE0"
-        android:textSize="14sp"
-        android:padding="5dp"
-        android:maxLines="2"
-        android:layout_marginTop="1dp"
-        android:text="Description goes here..."
-        android:layout_toStartOf="@+id/navigateBtn" />
-
-    <TextView
-        android:id="@+id/directionsTxt"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/descriptionTxt"
-        android:textColor="#DCDEE0"
-        android:textSize="14sp"
-        android:padding="5dp"
-        android:layout_marginTop="1dp"
-        android:maxLines="2"
-        android:text="Direction to get here..."
-        android:layout_toStartOf="@+id/navigateBtn" />
-
-    <TextView
         android:id="@+id/dateCreatedTxt"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="right"
         android:text="5:45 July 12"
         android:layout_marginRight="5dp"
         android:textSize="12sp"
-        android:textColor="#DCDEE0"
+        android:textColor="#343434"
         android:textStyle="bold"
+        android:layout_marginLeft="5dp"
         android:maxLines="2"
-        android:layout_alignBaseline="@+id/titleTxt"
-        android:layout_alignBottom="@+id/titleTxt"
-        android:layout_alignEnd="@+id/navigateBtn" />
+        android:layout_alignBottom="@+id/navigateBtn"
+        android:layout_toStartOf="@+id/navigateBtn" />
 
 
     <ImageButton android:layout_width="wrap_content"
@@ -65,8 +38,7 @@
         android:background="@android:color/transparent"
         android:src="@drawable/navicon"
         android:id="@+id/navigateBtn"
-        android:tint="#DCDEE0"
-        android:layout_alignBottom="@+id/directionsTxt"
+        android:tint="#000000"
         android:layout_alignParentEnd="true" />
 
 </RelativeLayout>

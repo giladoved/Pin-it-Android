@@ -2,9 +2,7 @@ package com.oved.gilad.pinitandroid.app.adapters;
 
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.SharedPreferences;
-import android.net.Uri;
 import android.support.v7.app.AlertDialog;
 import android.text.format.DateFormat;
 import android.view.LayoutInflater;
@@ -15,8 +13,11 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.oved.gilad.pinitandroid.R;
+import com.oved.gilad.pinitandroid.app.pages.MainActivity;
 import com.oved.gilad.pinitandroid.models.Pin;
 import com.oved.gilad.pinitandroid.utils.Constants;
+import com.oved.gilad.pinitandroid.utils.PubSubBus;
+import com.squareup.otto.Bus;
 
 import org.joda.time.DateTime;
 import org.joda.time.format.ISODateTimeFormat;
@@ -43,13 +44,13 @@ public class ListViewAdapter extends ArrayAdapter<Pin> {
         }
 
         TextView titleTxt = (TextView) convertView.findViewById(R.id.titleTxt);
-        TextView descriptionTxt = (TextView) convertView.findViewById(R.id.descriptionTxt);
-        TextView directionsTxt = (TextView) convertView.findViewById(R.id.directionsTxt);
+        //TextView descriptionTxt = (TextView) convertView.findViewById(R.id.descriptionTxt);
+        //TextView directionsTxt = (TextView) convertView.findViewById(R.id.directionsTxt);
         TextView dateCreatedTxt = (TextView) convertView.findViewById(R.id.dateCreatedTxt);
 
         titleTxt.setText(pin.getName());
-        descriptionTxt.setText(pin.getDescription());
-        directionsTxt.setText(pin.getDirections());
+        //descriptionTxt.setText(pin.getDescription());
+        //directionsTxt.setText(pin.getDirections());
 
         DateTime dateCreated = ISODateTimeFormat.dateTime().parseDateTime(pin.getDateCreated());
         String formattedDateCreated = DateFormat.format("MMM d h:mm aa", dateCreated.getMillis()).toString();
@@ -59,10 +60,19 @@ public class ListViewAdapter extends ArrayAdapter<Pin> {
         navigateBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Uri pinUri = Uri.parse("google.navigation:q=" + pin.getLat() + "," + pin.getLng() + "&mode=w");
+                MainActivity mainActivity = (MainActivity) getContext();
+                mainActivity.openMap();
+
+                Bus bus = PubSubBus.getInstance();
+                Constants.Log("pin: " + pin);
+                Constants.Log("Pid: " + pin.getId());
+                bus.post(pin.getId());
+
+                //google nav
+                /*Uri pinUri = Uri.parse("google.navigation:q=" + pin.getLat() + "," + pin.getLng() + "&mode=w");
                 Intent mapIntent = new Intent(Intent.ACTION_VIEW, pinUri);
                 mapIntent.setPackage("com.google.android.apps.maps");
-                getContext().startActivity(mapIntent);
+                getContext().startActivity(mapIntent);*/
             }
         });
 
