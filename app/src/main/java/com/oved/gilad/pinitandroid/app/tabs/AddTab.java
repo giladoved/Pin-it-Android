@@ -74,7 +74,6 @@ public class AddTab extends Fragment implements View.OnClickListener {
         mapView.onCreate(savedInstanceState);
 
         map = mapView.getMap();
-        map.getUiSettings().setMyLocationButtonEnabled(false);
         map.setMyLocationEnabled(true);
 
         MapsInitializer.initialize(this.getActivity());

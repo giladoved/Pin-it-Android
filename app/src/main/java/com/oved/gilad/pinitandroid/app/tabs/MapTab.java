@@ -66,13 +66,15 @@ public class MapTab extends Fragment {
         mapView.onCreate(savedInstanceState);
 
         map = mapView.getMap();
-        map.getUiSettings().setMyLocationButtonEnabled(false);
+        map.getUiSettings().setMyLocationButtonEnabled(true);
+        map.getUiSettings().setMapToolbarEnabled(true);
+        map.getUiSettings().setZoomControlsEnabled(true);
         map.setMyLocationEnabled(true);
 
         MapsInitializer.initialize(this.getActivity());
 
         Location cachedLocation = LastKnownLocation.getLocation();
-        map.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(cachedLocation.getLatitude(), cachedLocation.getLongitude()), 11));
+        map.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(cachedLocation.getLatitude(), cachedLocation.getLongitude()), 12));
 
         SharedPreferences settings = getActivity().getSharedPreferences(Constants.PREFS_NAME, 0);
         final String userId = settings.getString(Constants.ID_KEY, null);
@@ -144,7 +146,7 @@ public class MapTab extends Fragment {
         Constants.Log("Chosen marker: " + chosenMarker.getTitle());
         chosenMarker.showInfoWindow();
         Pin pin = markersToPins.get(chosenMarker);
-        map.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(pin.getLat(), pin.getLng()), 11));
+        map.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(pin.getLat(), pin.getLng()), 13));
     }
 
     @Subscribe
@@ -160,7 +162,7 @@ public class MapTab extends Fragment {
             map.animateCamera(cu);*/
 
             //pin around current location
-            map.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(location.getLatitude(), location.getLongitude()), 11));
+            map.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(location.getLatitude(), location.getLongitude()), 12));
         }
         this.location = location;
     }
