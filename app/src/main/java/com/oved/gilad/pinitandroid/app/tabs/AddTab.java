@@ -64,11 +64,8 @@ public class AddTab extends Fragment implements View.OnClickListener {
 
         addPinFormLayout = (LinearLayout) inflatedView.findViewById(R.id.addPinFormLayout);
 
-        location = LastKnownLocation.getLocation();
-
         addPinBtn = (Button) inflatedView.findViewById(R.id.addPinBtn);
         addPinBtn.setOnClickListener(this);
-        addPinBtn.setEnabled(false);
 
         mapView = (MapView) inflatedView.findViewById(R.id.addPinMap);
         mapView.onCreate(savedInstanceState);
