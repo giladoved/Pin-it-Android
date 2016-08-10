@@ -95,7 +95,7 @@ public class ListViewAdapter extends ArrayAdapter<Pin> {
                 Pin pin = pins.get(position);
                 String imageLocation = Constants.PHOTO_LINK + pin.getImage();
                 Picasso.with(getContext()).load(imageLocation).placeholder(R.drawable.pin)
-                        .error(R.drawable.pingrey).resize(width - 50, height - 150).into(imageView);
+                        .error(R.drawable.pingrey).resize(width - 100, height - 300).into(imageView);
 
                 AlertDialog.Builder builder =
                         new AlertDialog.Builder(getContext()).
