@@ -3,11 +3,14 @@ package com.oved.gilad.pinitandroid.app.adapters;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.graphics.Point;
 import android.support.v7.app.AlertDialog;
 import android.text.format.DateFormat;
+import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -78,15 +81,21 @@ public class ListViewAdapter extends ArrayAdapter<Pin> {
             }
         });
 
-        final ImageView imageView = new ImageView(getContext());
-
         convertView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                WindowManager wm = (WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE);
+                Display display = wm.getDefaultDisplay();
+                Point size = new Point();
+                display.getSize(size);
+                int width = size.x;
+                int height = size.y;
+
+                final ImageView imageView = new ImageView(getContext());
                 Pin pin = pins.get(position);
                 String imageLocation = Constants.PHOTO_LINK + pin.getImage();
                 Picasso.with(getContext()).load(imageLocation).placeholder(R.drawable.pin)
-                        .error(R.drawable.pingrey).resize(750, 750).into(imageView);
+                        .error(R.drawable.pingrey).resize(width - 50, height - 150).into(imageView);
 
                 AlertDialog.Builder builder =
                         new AlertDialog.Builder(getContext()).
