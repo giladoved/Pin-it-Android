@@ -62,8 +62,8 @@
             <Button
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Add Pin"
-                android:id="@+id/addPinBtn"
+                android:text="Add Photo"
+                android:id="@+id/addPhotoBtn"
                 android:layout_gravity="center_horizontal"
                 android:textColor="#FFFFFF"
                 android:textSize="20sp"

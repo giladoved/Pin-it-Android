@@ -10,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.oved.gilad.pinitandroid.R;
@@ -18,6 +19,7 @@ import com.oved.gilad.pinitandroid.models.Pin;
 import com.oved.gilad.pinitandroid.utils.Constants;
 import com.oved.gilad.pinitandroid.utils.PubSubBus;
 import com.squareup.otto.Bus;
+import com.squareup.picasso.Picasso;
 
 import org.joda.time.DateTime;
 import org.joda.time.format.ISODateTimeFormat;
@@ -48,7 +50,7 @@ public class ListViewAdapter extends ArrayAdapter<Pin> {
         //TextView directionsTxt = (TextView) convertView.findViewById(R.id.directionsTxt);
         TextView dateCreatedTxt = (TextView) convertView.findViewById(R.id.dateCreatedTxt);
 
-        titleTxt.setText(pin.getName());
+        titleTxt.setText(pin.getTitle());
         //descriptionTxt.setText(pin.getDescription());
         //directionsTxt.setText(pin.getDirections());
 
@@ -73,6 +75,30 @@ public class ListViewAdapter extends ArrayAdapter<Pin> {
                 Intent mapIntent = new Intent(Intent.ACTION_VIEW, pinUri);
                 mapIntent.setPackage("com.google.android.apps.maps");
                 getContext().startActivity(mapIntent);*/
+            }
+        });
+
+        final ImageView imageView = new ImageView(getContext());
+
+        convertView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Pin pin = pins.get(position);
+                String imageLocation = Constants.PHOTO_LINK + pin.getImage();
+                Picasso.with(getContext()).load(imageLocation).placeholder(R.drawable.pin)
+                        .error(R.drawable.pingrey).resize(750, 750).into(imageView);
+
+                AlertDialog.Builder builder =
+                        new AlertDialog.Builder(getContext()).
+                                setMessage(pin.getTitle()).
+                                setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        dialog.dismiss();
+                                    }
+                                }).
+                                setView(imageView);
+                builder.create().show();
             }
         });
 

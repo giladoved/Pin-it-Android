@@ -18,6 +18,12 @@ import android.view.MenuItem;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 
+import com.amazonaws.auth.CognitoCachingCredentialsProvider;
+import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
+import com.amazonaws.regions.Regions;
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
@@ -32,9 +38,10 @@ import com.google.android.gms.location.LocationSettingsStatusCodes;
 import com.oved.gilad.pinitandroid.R;
 import com.oved.gilad.pinitandroid.app.adapters.PagerAdapter;
 import com.oved.gilad.pinitandroid.utils.Constants;
-import com.oved.gilad.pinitandroid.utils.LastKnownLocation;
 import com.oved.gilad.pinitandroid.utils.PubSubBus;
 import com.squareup.otto.Bus;
+
+import java.io.File;
 
 //http://stackoverflow.com/questions/30093673/use-the-android-default-gps-on-off-dialog-in-my-application?lq=1
 public class MainActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, ResultCallback, LocationListener {
@@ -42,6 +49,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     GoogleApiClient googleApiClient;
     LocationRequest locationRequest;
     Location location;
+    TransferUtility transferUtility;
+    AmazonS3 s3;
 
     ViewPager viewPager;
     PagerAdapter adapter;
@@ -55,6 +64,15 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        final CognitoCachingCredentialsProvider credentialsProvider = new CognitoCachingCredentialsProvider(
+                getApplicationContext(),
+                Constants.COGNITO_POOL_ID,
+                Regions.US_EAST_1
+        );
+
+        s3 = new AmazonS3Client(credentialsProvider);
+        transferUtility = new TransferUtility(s3, getApplicationContext());
 
         bus = PubSubBus.getInstance();
 
@@ -100,6 +118,14 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
         locationRequest.setInterval(Constants.LOCATION_UPDATE_TIME);
         locationRequest.setFastestInterval(Constants.LOCATION_UPDATE_TIME);
+    }
+
+    public void uploadImage(File file, String pinId) {
+        try {
+            transferUtility.upload(Constants.BUCKET_NAME, pinId, file, CannedAccessControlList.PublicRead);
+        } catch (Exception x) {
+            Constants.Error("Error in uploading: " + x.getMessage());
+        }
     }
 
     public void openMap() {
@@ -190,7 +216,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     @Override
     public void onLocationChanged(Location location) {
         this.location = location;
-        LastKnownLocation.setLocation(location);
         bus.post(location);
         Constants.Log("Posted location: " + location.getLatitude() + ", " + location.getLongitude());
     }

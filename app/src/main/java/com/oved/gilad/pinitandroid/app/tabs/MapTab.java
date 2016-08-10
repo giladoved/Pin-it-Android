@@ -25,7 +25,6 @@ import com.oved.gilad.pinitandroid.R;
 import com.oved.gilad.pinitandroid.models.Pin;
 import com.oved.gilad.pinitandroid.rest.ApiServiceBuilder;
 import com.oved.gilad.pinitandroid.utils.Constants;
-import com.oved.gilad.pinitandroid.utils.LastKnownLocation;
 import com.oved.gilad.pinitandroid.utils.PubSubBus;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
@@ -73,9 +72,6 @@ public class MapTab extends Fragment {
 
         MapsInitializer.initialize(this.getActivity());
 
-        Location cachedLocation = LastKnownLocation.getLocation();
-        map.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(cachedLocation.getLatitude(), cachedLocation.getLongitude()), 12));
-
         SharedPreferences settings = getActivity().getSharedPreferences(Constants.PREFS_NAME, 0);
         final String userId = settings.getString(Constants.ID_KEY, null);
         if (userId != null) {
@@ -95,7 +91,7 @@ public class MapTab extends Fragment {
                                 LatLng pinLocation = new LatLng(pin.getLat(), pin.getLng());
                                 Marker marker = map.addMarker(new MarkerOptions()
                                         .position(pinLocation)
-                                        .title(pin.getName())
+                                        .title(pin.getTitle())
                                         .icon(BitmapDescriptorFactory.fromResource(R.drawable.pin))
                                         .snippet(pin.getDescription()));
                                 if (userId.equals(pin.getUserId())) {
@@ -114,7 +110,7 @@ public class MapTab extends Fragment {
                                 Pin chosenPin = markersToPins.get(marker);
                                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
                                 builder.setMessage(chosenPin.getDescription() + "\n" + chosenPin.getDirections())
-                                        .setTitle(chosenPin.getName())
+                                        .setTitle(chosenPin.getTitle())
                                         .setCancelable(false)
                                         .setPositiveButton("Okay", new DialogInterface.OnClickListener() {
                                             public void onClick(DialogInterface dialog, int id) {

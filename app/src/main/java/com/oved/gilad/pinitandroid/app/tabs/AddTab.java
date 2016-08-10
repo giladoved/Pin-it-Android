@@ -1,9 +1,17 @@
 package com.oved.gilad.pinitandroid.app.tabs;
 
+import android.Manifest;
+import android.app.Activity;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.location.Location;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
@@ -15,20 +23,23 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.model.LatLng;
 import com.oved.gilad.pinitandroid.R;
+import com.oved.gilad.pinitandroid.app.pages.MainActivity;
 import com.oved.gilad.pinitandroid.models.Pin;
 import com.oved.gilad.pinitandroid.rest.ApiServiceBuilder;
 import com.oved.gilad.pinitandroid.utils.Constants;
-import com.oved.gilad.pinitandroid.utils.LastKnownLocation;
 import com.oved.gilad.pinitandroid.utils.PubSubBus;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.util.UUID;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -40,7 +51,7 @@ public class AddTab extends Fragment implements View.OnClickListener {
     MapView mapView;
     GoogleMap map;
 
-    Button addPinBtn;
+    Button addPhotoBtn;
     EditText pinTitleTxt;
     EditText pinDescriptionTxt;
     EditText pinDirectionsTxt;
@@ -48,6 +59,11 @@ public class AddTab extends Fragment implements View.OnClickListener {
     TextView lookingForLocationLbl;
 
     Bus bus;
+
+    String encodedImage;
+    String username;
+    String pinId;
+    String filename;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -64,8 +80,8 @@ public class AddTab extends Fragment implements View.OnClickListener {
 
         addPinFormLayout = (LinearLayout) inflatedView.findViewById(R.id.addPinFormLayout);
 
-        addPinBtn = (Button) inflatedView.findViewById(R.id.addPinBtn);
-        addPinBtn.setOnClickListener(this);
+        addPhotoBtn = (Button) inflatedView.findViewById(R.id.addPhotoBtn);
+        addPhotoBtn.setOnClickListener(this);
 
         mapView = (MapView) inflatedView.findViewById(R.id.addPinMap);
         mapView.onCreate(savedInstanceState);
@@ -74,6 +90,9 @@ public class AddTab extends Fragment implements View.OnClickListener {
         map.setMyLocationEnabled(true);
 
         MapsInitializer.initialize(this.getActivity());
+
+        SharedPreferences settings = getActivity().getSharedPreferences(Constants.PREFS_NAME, 0);
+        username = settings.getString(Constants.NAME_KEY, null);
 
         return inflatedView;
     }
@@ -106,11 +125,14 @@ public class AddTab extends Fragment implements View.OnClickListener {
         mapView.onLowMemory();
     }
 
-    @Override
-    public void onClick(View v) {
+    public void addPin() {
         if (location == null || (location.getLatitude() == 0 && location.getLongitude() == 0)) {
             Toast.makeText(getActivity().getApplicationContext(), "Please wait until your location is found", Toast.LENGTH_SHORT).show();
             return;
+        }
+
+        if (encodedImage == null) {
+            encodedImage = "";
         }
 
         SharedPreferences settings = getActivity().getSharedPreferences(Constants.PREFS_NAME, 0);
@@ -129,13 +151,14 @@ public class AddTab extends Fragment implements View.OnClickListener {
             pinTitleTxt.requestFocus();
         } else {
             //add pin
-            Pin pinToAdd = new Pin();
+            final Pin pinToAdd = new Pin();
             pinToAdd.setUserId(userId);
-            pinToAdd.setName(pinTitle);
+            pinToAdd.setTitle(pinTitle);
             pinToAdd.setDescription(pinDescription);
             pinToAdd.setDirections(pinDirections);
             pinToAdd.setLat(this.location.getLatitude());
             pinToAdd.setLng(this.location.getLongitude());
+            pinToAdd.setImage(pinId);
             Call<Pin> addPinCall = ApiServiceBuilder.getInstance().api().addPin(pinToAdd);
             addPinCall.enqueue(new Callback<Pin>() {
                 @Override
@@ -149,8 +172,7 @@ public class AddTab extends Fragment implements View.OnClickListener {
                                     pinTitleTxt.setText("");
                                     pinDescriptionTxt.setText("");
                                     pinDirectionsTxt.setText("");
-
-                                    pinTitleTxt.requestFocus();
+                                    pinDirectionsTxt.clearFocus();
                                 }
                             });
                     AlertDialog alert = builder.create();
@@ -162,6 +184,68 @@ public class AddTab extends Fragment implements View.OnClickListener {
                     Toast.makeText(getContext(), "There was an error saving your pin...", Toast.LENGTH_SHORT).show();
                 }
             });
+        }
+    }
+
+    @Override
+    public void onClick(View v) {
+        verifyStoragePermissions(getActivity());
+
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        if (takePictureIntent.resolveActivity(getActivity().getPackageManager()) != null) {
+            startActivityForResult(takePictureIntent, Constants.REQUEST_IMAGE_CAPTURE);
+        }
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == Constants.REQUEST_IMAGE_CAPTURE && resultCode == getActivity().RESULT_OK) {
+            Bundle extras = data.getExtras();
+            Bitmap bitmap = (Bitmap) extras.get("data");
+
+            //http://stackoverflow.com/questions/649154/save-bitmap-to-location
+            if (username == null) {
+                username = "";
+            }
+            pinId = UUID.randomUUID() + "";
+            filename = pinId + ".png";
+            File sd = Environment.getExternalStorageDirectory();
+            File dest = new File(sd, filename);
+
+            try {
+                FileOutputStream out = new FileOutputStream(dest);
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
+                out.flush();
+                out.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            MainActivity mainActivity = (MainActivity) getActivity();
+            mainActivity.uploadImage(dest, pinId);
+            addPin();
+        }
+    }
+
+    //http://stackoverflow.com/questions/8854359/exception-open-failed-eacces-permission-denied-on-android
+    /**
+     * Checks if the app has permission to write to device storage
+     *
+     * If the app does not has permission then the user will be prompted to grant permissions
+     *
+     * @param activity
+     */
+    public static void verifyStoragePermissions(Activity activity) {
+        // Check if we have write permission
+        int permission = ActivityCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+
+        if (permission != PackageManager.PERMISSION_GRANTED) {
+            // We don't have permission so prompt the user
+            ActivityCompat.requestPermissions(
+                    activity,
+                    Constants.PERMISSIONS_STORAGE,
+                    Constants.REQUEST_EXTERNAL_STORAGE
+            );
         }
     }
 }

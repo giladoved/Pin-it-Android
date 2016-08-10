@@ -3,6 +3,9 @@ package com.oved.gilad.pinitandroid.models;
 /**
  * Created by gilad on 7/23/16.
  */
+
+import android.graphics.Bitmap;
+
 import javax.annotation.Generated;
 
 @Generated("org.jsonschema2pojo")
@@ -10,12 +13,16 @@ public class Pin {
 
     private String _id;
     private String user_id;
-    private String name;
+    private String username;
+    private String image;
+    private String url;
+    private String title;
     private String description;
     private String directions;
     private Double lat;
     private Double lng;
     private String date_created;
+    private Bitmap bitmap;
 
     /**
      * @return The id
@@ -53,19 +60,73 @@ public class Pin {
     /**
      *
      * @return
-     * The name
+     * The title
      */
-    public String getName() {
-        return name;
+    public String getTitle() {
+        return title;
     }
 
     /**
      *
-     * @param name
-     * The name
+     * @param title
+     * The title
      */
-    public void setName(String name) {
-        this.name = name;
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    /**
+     *
+     * @return
+     * The username
+     */
+    public String getUsername() {
+        return username;
+    }
+
+    /**
+     *
+     * @param username
+     * The username
+     */
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    /**
+     *
+     * @return
+     * The image
+     */
+    public String getImage() {
+        return image;
+    }
+
+    /**
+     *
+     * @param image
+     * The image
+     */
+    public void setImage(String image) {
+        this.image = image;
+    }
+
+    /**
+     *
+     * @return
+     * The url
+     */
+    public String getUrl() {
+        return url;
+    }
+
+    /**
+     *
+     * @param url
+     * The url
+     */
+    public void setUrl(String url) {
+        this.url = url;
     }
 
     /**
@@ -152,5 +213,23 @@ public class Pin {
      */
     public void setDateCreated(String dateCreated) {
         this.date_created = dateCreated;
+    }
+
+    /**
+     *
+     * @return
+     * The bitmap
+     */
+    public Bitmap getBitmap() {
+        return bitmap;
+    }
+
+    /**
+     *
+     * @param bitmap
+     * The bitmap
+     */
+    public void setBitmap(Bitmap bitmap) {
+        this.bitmap = bitmap;
     }
 }

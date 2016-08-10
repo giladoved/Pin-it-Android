@@ -13,6 +13,9 @@ import com.oved.gilad.pinitandroid.app.adapters.ListViewAdapter;
 import com.oved.gilad.pinitandroid.models.Pin;
 import com.oved.gilad.pinitandroid.rest.ApiServiceBuilder;
 import com.oved.gilad.pinitandroid.utils.Constants;
+import com.oved.gilad.pinitandroid.utils.PubSubBus;
+import com.squareup.otto.Bus;
+import com.squareup.otto.Subscribe;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,9 +29,14 @@ public class ListTab extends ListFragment {
     ArrayList<Pin> pins;
     SwipeRefreshLayout swipeList;
 
+    Bus bus;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View inflatedView = inflater.inflate(R.layout.fragment_list_view, container, false);
+
+        bus = PubSubBus.getInstance();
+        bus.register(this);
 
         swipeList = (SwipeRefreshLayout) inflatedView.findViewById(R.id.swipeList);
         swipeList.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
@@ -44,6 +52,11 @@ public class ListTab extends ListFragment {
         loadPins();
 
         return inflatedView;
+    }
+
+    @Subscribe
+    public void loadPinsAfterAdded(Pin pin) {
+        loadPins();
     }
 
     public void loadPins() {
