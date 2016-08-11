@@ -94,15 +94,15 @@ public class AddTab extends Fragment implements View.OnClickListener {
         SharedPreferences settings = getActivity().getSharedPreferences(Constants.PREFS_NAME, 0);
         username = settings.getString(Constants.NAME_KEY, null);
 
+        addPinFormLayout.setVisibility(View.VISIBLE);
+        lookingForLocationLbl.setVisibility(View.GONE);
+        mapView.setVisibility(View.VISIBLE);
+
         return inflatedView;
     }
 
     @Subscribe
     public void getLocation(Location location) {
-        addPinFormLayout.setVisibility(View.VISIBLE);
-        lookingForLocationLbl.setVisibility(View.GONE);
-        mapView.setVisibility(View.VISIBLE);
-
         this.location = location;
         map.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(location.getLatitude(), location.getLongitude()), 18));
     }
