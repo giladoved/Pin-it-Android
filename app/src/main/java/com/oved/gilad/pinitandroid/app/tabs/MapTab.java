@@ -1,5 +1,6 @@
 package com.oved.gilad.pinitandroid.app.tabs;
 
+import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.location.Location;
@@ -79,8 +80,13 @@ public class MapTab extends Fragment {
         location = mainActivity.getLocation();
         positionToLocation();
 
-        SharedPreferences settings = getActivity().getSharedPreferences(Constants.PREFS_NAME, 0);
-        final String userId = settings.getString(Constants.ID_KEY, null);
+        loadPins();
+
+        return inflatedView;
+    }
+
+    public void loadPins() {
+        final String userId = mainActivity.getUserId();
         if (userId != null) {
             Call<List<Pin>> getAllPinsCall = ApiServiceBuilder.getInstance().api().getAllPins();
             getAllPinsCall.enqueue(new Callback<List<Pin>>() {
@@ -88,7 +94,6 @@ public class MapTab extends Fragment {
                 public void onResponse(Call<List<Pin>> call, Response<List<Pin>> response) {
                     if (response.isSuccessful()) {
                         pins = response.body();
-
                         if (pins.size() == 0) {
                             return;
                         }
@@ -139,8 +144,6 @@ public class MapTab extends Fragment {
                 }
             });
         }
-
-        return inflatedView;
     }
 
     @Subscribe
@@ -179,7 +182,6 @@ public class MapTab extends Fragment {
         }
         this.location = location;
     }
-
 
     @Override
     public void onResume() {

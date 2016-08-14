@@ -100,15 +100,14 @@ public class AddTab extends Fragment implements View.OnClickListener {
 
         MapsInitializer.initialize(this.getActivity());
 
-        SharedPreferences settings = getActivity().getSharedPreferences(Constants.PREFS_NAME, 0);
-        username = settings.getString(Constants.NAME_KEY, null);
-
         addPinFormLayout.setVisibility(View.VISIBLE);
         lookingForLocationLbl.setVisibility(View.GONE);
         mapView.setVisibility(View.VISIBLE);
 
         location = mainActivity.getLocation();
         positionToLocation();
+
+        username = mainActivity.getUsername();
 
         Constants.Log("Loaded addTab. Location: " + location);
 
@@ -196,13 +195,12 @@ public class AddTab extends Fragment implements View.OnClickListener {
                                     pinTitleTxt.setText("");
                                     pinDescriptionTxt.setText("");
                                     pinDirectionsTxt.setText("");
-                                    pinDirectionsTxt.clearFocus();
+
+                                    mainActivity.openMap();
                                 }
                             });
                     AlertDialog alert = builder.create();
                     alert.show();
-
-                    mainActivity.openMap();
                 }
 
                 @Override

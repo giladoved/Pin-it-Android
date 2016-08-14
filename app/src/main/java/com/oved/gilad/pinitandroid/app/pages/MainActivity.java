@@ -10,7 +10,6 @@ import android.location.Location;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -39,6 +38,7 @@ import com.google.android.gms.location.LocationSettingsStatusCodes;
 import com.oved.gilad.pinitandroid.R;
 import com.oved.gilad.pinitandroid.app.adapters.PagerAdapter;
 import com.oved.gilad.pinitandroid.app.tabs.AddTab;
+import com.oved.gilad.pinitandroid.app.tabs.MapTab;
 import com.oved.gilad.pinitandroid.utils.Constants;
 import com.oved.gilad.pinitandroid.utils.PubSubBus;
 import com.squareup.otto.Bus;
@@ -105,7 +105,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
                         break;
                     case 2:
-
+                        MapTab mapTab = (MapTab) adapter.getItem(2);
+                        mapTab.positionToLocation();
                         break;
                     default:
                         break;
@@ -123,9 +124,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
             @Override
             public void onTabReselected(TabLayout.Tab tab) {
-                Intent intent = new Intent("tab-clicked");
-                intent.putExtra("index", tab.getPosition());
-                LocalBroadcastManager.getInstance(MainActivity.this).sendBroadcast(intent);
+
             }
         });
 
@@ -232,6 +231,14 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     protected void onStop() {
         googleApiClient.disconnect();
         super.onStop();
+    }
+
+    public String getUserId() {
+        return getSharedPreferences(Constants.PREFS_NAME, 0).getString(Constants.ID_KEY, null);
+    }
+
+    public String getUsername() {
+        return getSharedPreferences(Constants.PREFS_NAME, 0).getString(Constants.NAME_KEY, null);
     }
 
     public Location getLocation() {
