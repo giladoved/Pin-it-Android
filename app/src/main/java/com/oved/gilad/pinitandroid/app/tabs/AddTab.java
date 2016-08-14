@@ -201,6 +201,8 @@ public class AddTab extends Fragment implements View.OnClickListener {
                             });
                     AlertDialog alert = builder.create();
                     alert.show();
+
+                    mainActivity.openMap();
                 }
 
                 @Override
