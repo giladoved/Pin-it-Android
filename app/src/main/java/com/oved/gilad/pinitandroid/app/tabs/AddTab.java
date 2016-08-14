@@ -2,8 +2,11 @@ package com.oved.gilad.pinitandroid.app.tabs;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -13,7 +16,9 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AlertDialog;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -65,12 +70,16 @@ public class AddTab extends Fragment implements View.OnClickListener {
     String pinId;
     String filename;
 
+    MainActivity mainActivity;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View inflatedView = inflater.inflate(R.layout.fragment_add_pin, container, false);
 
         Bus bus = PubSubBus.getInstance();
         bus.register(this);
+
+        mainActivity = (MainActivity) getActivity();
 
         pinTitleTxt = (EditText) inflatedView.findViewById(R.id.pinTitleTxt);
         pinDescriptionTxt = (EditText) inflatedView.findViewById(R.id.pinDescriptionTxt);
@@ -98,13 +107,28 @@ public class AddTab extends Fragment implements View.OnClickListener {
         lookingForLocationLbl.setVisibility(View.GONE);
         mapView.setVisibility(View.VISIBLE);
 
+        location = mainActivity.getLocation();
+        positionToLocation();
+
+        Constants.Log("Loaded addTab. Location: " + location);
+
         return inflatedView;
     }
 
     @Subscribe
     public void getLocation(Location location) {
         this.location = location;
-        map.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(location.getLatitude(), location.getLongitude()), 18));
+        positionMap(location);
+    }
+
+    public void positionToLocation() {
+        if (location != null) {
+            positionMap(location);
+        }
+    }
+
+    public void positionMap(Location location) {
+        map.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(location.getLatitude(), location.getLongitude()), 18));
     }
 
     @Override

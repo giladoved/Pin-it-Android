@@ -22,6 +22,7 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.oved.gilad.pinitandroid.R;
+import com.oved.gilad.pinitandroid.app.pages.MainActivity;
 import com.oved.gilad.pinitandroid.models.Pin;
 import com.oved.gilad.pinitandroid.rest.ApiServiceBuilder;
 import com.oved.gilad.pinitandroid.utils.Constants;
@@ -49,6 +50,7 @@ public class MapTab extends Fragment {
     Location location;
 
     Bus bus;
+    MainActivity mainActivity;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -56,6 +58,8 @@ public class MapTab extends Fragment {
 
         Bus bus = PubSubBus.getInstance();
         bus.register(this);
+
+        mainActivity = (MainActivity) getActivity();
 
         markers = new ArrayList<>();
         markersToPins = new HashMap<>();
@@ -71,6 +75,9 @@ public class MapTab extends Fragment {
         map.setMyLocationEnabled(true);
 
         MapsInitializer.initialize(this.getActivity());
+
+        location = mainActivity.getLocation();
+        positionToLocation();
 
         SharedPreferences settings = getActivity().getSharedPreferences(Constants.PREFS_NAME, 0);
         final String userId = settings.getString(Constants.ID_KEY, null);
@@ -143,6 +150,16 @@ public class MapTab extends Fragment {
         chosenMarker.showInfoWindow();
         Pin pin = markersToPins.get(chosenMarker);
         map.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(pin.getLat(), pin.getLng()), 13));
+    }
+
+    public void positionToLocation() {
+        if (location != null) {
+            positionMap(location);
+        }
+    }
+
+    public void positionMap(Location location) {
+        map.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(location.getLatitude(), location.getLongitude()), 12));
     }
 
     @Subscribe

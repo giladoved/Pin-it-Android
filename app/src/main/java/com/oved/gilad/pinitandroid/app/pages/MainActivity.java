@@ -10,6 +10,7 @@ import android.location.Location;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -37,6 +38,7 @@ import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.location.LocationSettingsStatusCodes;
 import com.oved.gilad.pinitandroid.R;
 import com.oved.gilad.pinitandroid.app.adapters.PagerAdapter;
+import com.oved.gilad.pinitandroid.app.tabs.AddTab;
 import com.oved.gilad.pinitandroid.utils.Constants;
 import com.oved.gilad.pinitandroid.utils.PubSubBus;
 import com.squareup.otto.Bus;
@@ -92,6 +94,23 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             public void onTabSelected(TabLayout.Tab tab) {
                 viewPager.setCurrentItem(tab.getPosition());
 
+                Constants.Log("Tab Clicked: " + tab.getPosition());
+
+                switch(tab.getPosition()) {
+                    case 0:
+                        AddTab addTap = (AddTab) adapter.getItem(0);
+                        addTap.positionToLocation();
+                        break;
+                    case 1:
+
+                        break;
+                    case 2:
+
+                        break;
+                    default:
+                        break;
+                }
+
                 //hides keyboard
                 InputMethodManager inputManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                 inputManager.hideSoftInputFromWindow((null == getCurrentFocus()) ? null : getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
@@ -104,7 +123,9 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
             @Override
             public void onTabReselected(TabLayout.Tab tab) {
-
+                Intent intent = new Intent("tab-clicked");
+                intent.putExtra("index", tab.getPosition());
+                LocalBroadcastManager.getInstance(MainActivity.this).sendBroadcast(intent);
             }
         });
 
@@ -211,6 +232,10 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     protected void onStop() {
         googleApiClient.disconnect();
         super.onStop();
+    }
+
+    public Location getLocation() {
+        return location;
     }
 
     @Override
