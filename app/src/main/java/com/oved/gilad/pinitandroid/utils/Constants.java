@@ -22,6 +22,8 @@ public class Constants {
 
     public static final String PHOTO_LINK = "https://s3.amazonaws.com/pinit-app/";
 
+    public static final String GOOGLE_ANALYTICS_ID = "UA-66562531-3";
+
     public static final String ID_KEY = "id";
     public static final String NAME_KEY = "name";
     public static final String DATE_KEY = "date";

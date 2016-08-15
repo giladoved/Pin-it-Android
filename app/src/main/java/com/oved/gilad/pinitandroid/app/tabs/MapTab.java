@@ -1,8 +1,6 @@
 package com.oved.gilad.pinitandroid.app.tabs;
 
-import android.app.Activity;
 import android.content.DialogInterface;
-import android.content.SharedPreferences;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -10,16 +8,15 @@ import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
-import com.google.android.gms.maps.CameraUpdate;
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.oved.gilad.pinitandroid.R;
@@ -120,6 +117,12 @@ public class MapTab extends Fragment {
                             @Override
                             public void onInfoWindowClick(Marker marker) {
                                 Pin chosenPin = markersToPins.get(marker);
+                                Tracker tracker = mainActivity.getTracker();
+                                tracker.send(new HitBuilders.EventBuilder()
+                                        .setCategory("Pin")
+                                        .setAction("Clicked")
+                                        .build());
+
                                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
                                 builder.setMessage(chosenPin.getDescription() + "\n" + chosenPin.getDirections())
                                         .setTitle(chosenPin.getTitle())

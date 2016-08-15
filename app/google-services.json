@@ -1,0 +1,38 @@
+{
+  "project_info": {
+    "project_number": "1064840158284",
+    "project_id": "pinit-1381"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1064840158284:android:1a4eb34a6f3ab283",
+        "android_client_info": {
+          "package_name": "com.oved.gilad.pinitandroid"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCTsvmxMS0okIbz_HlWmSFnSX00Q4rg2L4"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 2,
+          "analytics_property": {
+            "tracking_id": "UA-66562531-3"
+          }
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 1
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

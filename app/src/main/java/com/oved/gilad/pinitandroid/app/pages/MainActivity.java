@@ -24,6 +24,8 @@ import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
@@ -39,6 +41,7 @@ import com.oved.gilad.pinitandroid.R;
 import com.oved.gilad.pinitandroid.app.adapters.PagerAdapter;
 import com.oved.gilad.pinitandroid.app.tabs.AddTab;
 import com.oved.gilad.pinitandroid.app.tabs.MapTab;
+import com.oved.gilad.pinitandroid.utils.AnalyticsApplication;
 import com.oved.gilad.pinitandroid.utils.Constants;
 import com.oved.gilad.pinitandroid.utils.PubSubBus;
 import com.squareup.otto.Bus;
@@ -60,12 +63,17 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
     Bus bus;
 
+    Tracker tracker;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        AnalyticsApplication application = (AnalyticsApplication) getApplication();
+        tracker = application.getDefaultTracker();
 
         final CognitoCachingCredentialsProvider credentialsProvider = new CognitoCachingCredentialsProvider(
                 getApplicationContext(),
@@ -96,21 +104,29 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
                 Constants.Log("Tab Clicked: " + tab.getPosition());
 
+                String tabName = "";
+
                 switch(tab.getPosition()) {
                     case 0:
+                        tabName = "add";
                         AddTab addTap = (AddTab) adapter.getItem(0);
                         addTap.positionToLocation();
                         break;
                     case 1:
-
+                        tabName = "list";
                         break;
                     case 2:
+                        tabName = "map";
                         MapTab mapTab = (MapTab) adapter.getItem(2);
                         mapTab.positionToLocation();
                         break;
                     default:
                         break;
                 }
+
+                Constants.Log("Setting screen: " + tabName);
+                tracker.setScreenName("Image~" + tabName);
+                tracker.send(new HitBuilders.ScreenViewBuilder().build());
 
                 //hides keyboard
                 InputMethodManager inputManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -231,6 +247,10 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     protected void onStop() {
         googleApiClient.disconnect();
         super.onStop();
+    }
+
+    public Tracker getTracker() {
+        return tracker;
     }
 
     public String getUserId() {
