@@ -76,7 +76,7 @@ public class AddTab extends Fragment implements View.OnClickListener {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View inflatedView = inflater.inflate(R.layout.fragment_add_pin, container, false);
 
-        Bus bus = PubSubBus.getInstance();
+        bus = PubSubBus.getInstance();
         bus.register(this);
 
         mainActivity = (MainActivity) getActivity();
@@ -158,66 +158,70 @@ public class AddTab extends Fragment implements View.OnClickListener {
             encodedImage = "";
         }
 
-        SharedPreferences settings = getActivity().getSharedPreferences(Constants.PREFS_NAME, 0);
-        String userId = settings.getString(Constants.ID_KEY, null);
+        String userId = mainActivity.getUserId();
         if (userId == null) {
             return;
         }
 
+
+        //add pin
         final String pinTitle = pinTitleTxt.getText().toString().toLowerCase().trim();
         final String pinDescription = pinDescriptionTxt.getText().toString().toLowerCase().trim();
         final String pinDirections = pinDirectionsTxt.getText().toString().toLowerCase().trim();
-        if (pinTitle.length() < 2) {
+
+        final Pin pinToAdd = new Pin();
+        pinToAdd.setUserId(userId);
+        pinToAdd.setTitle(pinTitle);
+        pinToAdd.setDescription(pinDescription);
+        pinToAdd.setDirections(pinDirections);
+        pinToAdd.setLat(this.location.getLatitude());
+        pinToAdd.setLng(this.location.getLongitude());
+        pinToAdd.setImage(pinId);
+        Call<Pin> addPinCall = ApiServiceBuilder.getInstance().api().addPin(pinToAdd);
+        addPinCall.enqueue(new Callback<Pin>() {
+            @Override
+            public void onResponse(Call<Pin> call, Response<Pin> response) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                builder.setMessage("Keep on exploring")
+                        .setTitle("Pinned it!")
+                        .setCancelable(false)
+                        .setPositiveButton("OKAY", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                pinTitleTxt.setText("");
+                                pinDescriptionTxt.setText("");
+                                pinDirectionsTxt.setText("");
+
+                                mainActivity.openMap();
+                            }
+                        });
+                AlertDialog alert = builder.create();
+                alert.show();
+            }
+
+            @Override
+            public void onFailure(Call<Pin> call, Throwable t) {
+                Toast.makeText(getContext(), "There was an error saving your pin...", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    @Override
+    public void onClick(View v) {
+        final String pinTitle = pinTitleTxt.getText().toString().toLowerCase().trim();
+        final String pinDescription = pinDescriptionTxt.getText().toString().toLowerCase().trim();
+        final String pinDirections = pinDirectionsTxt.getText().toString().toLowerCase().trim();
+        if (pinTitle == null || pinTitle.length() < 2 || pinDescription == null || pinDescription.length() < 2) {
             //invalid input
             Constants.Toast(getContext(), "Please enter a valid title, description and directions");
             pinTitleTxt.setText("");
             pinTitleTxt.requestFocus();
         } else {
-            //add pin
-            final Pin pinToAdd = new Pin();
-            pinToAdd.setUserId(userId);
-            pinToAdd.setTitle(pinTitle);
-            pinToAdd.setDescription(pinDescription);
-            pinToAdd.setDirections(pinDirections);
-            pinToAdd.setLat(this.location.getLatitude());
-            pinToAdd.setLng(this.location.getLongitude());
-            pinToAdd.setImage(pinId);
-            Call<Pin> addPinCall = ApiServiceBuilder.getInstance().api().addPin(pinToAdd);
-            addPinCall.enqueue(new Callback<Pin>() {
-                @Override
-                public void onResponse(Call<Pin> call, Response<Pin> response) {
-                    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                    builder.setMessage("Keep on exploring")
-                            .setTitle("Pinned it!")
-                            .setCancelable(false)
-                            .setPositiveButton("OKAY", new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int id) {
-                                    pinTitleTxt.setText("");
-                                    pinDescriptionTxt.setText("");
-                                    pinDirectionsTxt.setText("");
+            verifyStoragePermissions(getActivity());
 
-                                    mainActivity.openMap();
-                                }
-                            });
-                    AlertDialog alert = builder.create();
-                    alert.show();
-                }
-
-                @Override
-                public void onFailure(Call<Pin> call, Throwable t) {
-                    Toast.makeText(getContext(), "There was an error saving your pin...", Toast.LENGTH_SHORT).show();
-                }
-            });
-        }
-    }
-
-    @Override
-    public void onClick(View v) {
-        verifyStoragePermissions(getActivity());
-
-        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        if (takePictureIntent.resolveActivity(getActivity().getPackageManager()) != null) {
-            startActivityForResult(takePictureIntent, Constants.REQUEST_IMAGE_CAPTURE);
+            Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            if (takePictureIntent.resolveActivity(getActivity().getPackageManager()) != null) {
+                startActivityForResult(takePictureIntent, Constants.REQUEST_IMAGE_CAPTURE);
+            }
         }
     }
 

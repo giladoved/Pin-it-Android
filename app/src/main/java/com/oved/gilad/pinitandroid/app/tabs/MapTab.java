@@ -54,7 +54,7 @@ public class MapTab extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View inflatedView = inflater.inflate(R.layout.fragment_map_view, container, false);
 
-        Bus bus = PubSubBus.getInstance();
+        bus = PubSubBus.getInstance();
         bus.register(this);
 
         mainActivity = (MainActivity) getActivity();

@@ -7,6 +7,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.oved.gilad.pinitandroid.R;
@@ -22,11 +23,14 @@ public class RegisterActivity extends AppCompatActivity {
 
     EditText nameTxt;
     Button signupBtn;
+    ProgressBar spinner;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
+
+        spinner = (ProgressBar)findViewById(R.id.progressBar);
 
         nameTxt = (EditText) findViewById(R.id.nameTxt);
         signupBtn = (Button) findViewById(R.id.signupBtn);
@@ -40,6 +44,8 @@ public class RegisterActivity extends AppCompatActivity {
                     nameTxt.setText("");
                     nameTxt.requestFocus();
                 } else {
+                    signupBtn.setEnabled(false);
+                    spinner.setVisibility(View.VISIBLE);
                     //register user
                     User userToRegister = new User();
                     userToRegister.setName(name);
@@ -70,6 +76,9 @@ public class RegisterActivity extends AppCompatActivity {
 
                             nameTxt.setText("");
                             nameTxt.requestFocus();
+
+                            signupBtn.setEnabled(true);
+                            spinner.setVisibility(View.GONE);
                         }
                     });
                 }
