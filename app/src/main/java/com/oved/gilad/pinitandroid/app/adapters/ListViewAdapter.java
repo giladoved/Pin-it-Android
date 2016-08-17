@@ -20,6 +20,8 @@ import com.oved.gilad.pinitandroid.R;
 import com.oved.gilad.pinitandroid.app.pages.MainActivity;
 import com.oved.gilad.pinitandroid.models.Pin;
 import com.oved.gilad.pinitandroid.utils.Constants;
+import com.oved.gilad.pinitandroid.utils.PubSubBus;
+import com.squareup.otto.Bus;
 import com.squareup.picasso.Picasso;
 
 import org.joda.time.DateTime;
@@ -65,6 +67,9 @@ public class ListViewAdapter extends ArrayAdapter<Pin> {
             public void onClick(View v) {
                 MainActivity mainActivity = (MainActivity) getContext();
                 mainActivity.openMap();
+
+                Bus bus = PubSubBus.getInstance();
+                bus.post(pin.getId());
 
                 //google nav
                 /*Uri pinUri = Uri.parse("google.navigation:q=" + pin.getLat() + "," + pin.getLng() + "&mode=w");
