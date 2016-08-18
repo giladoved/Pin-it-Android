@@ -91,12 +91,13 @@ public class ListViewAdapter extends ArrayAdapter<Pin> {
 
                 final ImageView imageView = new ImageView(getContext());
                 imageView.setAdjustViewBounds(true);
-                imageView.setMinimumWidth(width - 100);
+                imageView.setMaxWidth(width - 100);
                 imageView.setMaxHeight(height - 300);
                 Pin pin = pins.get(position);
                 String imageLocation = Constants.PHOTO_LINK + pin.getImage();
+
                 Picasso.with(getContext()).load(imageLocation).placeholder(R.drawable.manflag)
-                        .error(R.drawable.nosignal).fit().centerInside().into(imageView);
+                        .error(R.drawable.nosignal).fit().centerInside().rotate(90).into(imageView);
 
                 AlertDialog.Builder builder =
                         new AlertDialog.Builder(getContext()).
