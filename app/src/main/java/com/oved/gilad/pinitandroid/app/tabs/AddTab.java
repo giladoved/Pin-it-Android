@@ -267,49 +267,6 @@ public class AddTab extends Fragment implements View.OnClickListener {
 
                 currentPhotoPath = null;
             }
-
-            /*Bundle extras = data.getExtras();
-            Bitmap bitmap = (Bitmap) extras.get("data");
-
-            //http://stackoverflow.com/questions/649154/save-bitmap-to-location
-            if (username == null) {
-                username = "";
-            }
-            pinId = UUID.randomUUID() + "";
-            filename = pinId + ".png";
-            File bitmapFile = null;
-
-            try {
-                ByteArrayOutputStream bos = new ByteArrayOutputStream(bitmap.getByteCount());
-                bitmap.compress(Bitmap.CompressFormat.PNG, 80, bos);
-                byte[] bArr = bos.toByteArray();
-                bos.flush();
-                bos.close();
-
-                FileOutputStream fos = getContext().openFileOutput(filename, Context.MODE_WORLD_WRITEABLE);
-                fos.write(bArr);
-                fos.flush();
-                fos.close();
-
-                bitmapFile = new File(getContext().getFilesDir().getAbsolutePath(), filename);
-            }
-            catch (FileNotFoundException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-            Bitmap original = bitmap;
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            original.compress(Bitmap.CompressFormat.PNG, 100, out);
-            Bitmap decoded = BitmapFactory.decodeStream(new ByteArrayInputStream(out.toByteArray()));
-
-            Log.e("Original   dimensions", original.getWidth() + " " + original.getHeight());
-            Log.e("Compressed dimensions", decoded.getWidth()+" "+decoded.getHeight());
-
-            MainActivity mainActivity = (MainActivity) getActivity();
-            mainActivity.uploadImage(bitmapFile, pinId);
-            addPin();*/
         }
     }
 
