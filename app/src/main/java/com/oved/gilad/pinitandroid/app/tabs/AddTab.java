@@ -2,23 +2,18 @@ package com.oved.gilad.pinitandroid.app.tabs;
 
 import android.Manifest;
 import android.app.Activity;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.location.Location;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
-import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AlertDialog;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -43,7 +38,9 @@ import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
 import java.io.File;
-import java.io.FileOutputStream;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.UUID;
 
 import retrofit2.Call;
@@ -68,7 +65,9 @@ public class AddTab extends Fragment implements View.OnClickListener {
     String encodedImage;
     String username;
     String pinId;
-    String filename;
+
+    String currentPhotoPath;
+    File createdFile;
 
     MainActivity mainActivity;
 
@@ -108,8 +107,6 @@ public class AddTab extends Fragment implements View.OnClickListener {
         positionToLocation();
 
         username = mainActivity.getUsername();
-
-        Constants.Log("Loaded addTab. Location: " + location);
 
         return inflatedView;
     }
@@ -162,7 +159,6 @@ public class AddTab extends Fragment implements View.OnClickListener {
         if (userId == null) {
             return;
         }
-
 
         //add pin
         final String pinTitle = pinTitleTxt.getText().toString().toLowerCase().trim();
@@ -218,17 +214,61 @@ public class AddTab extends Fragment implements View.OnClickListener {
         } else {
             verifyStoragePermissions(getActivity());
 
-            Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-            if (takePictureIntent.resolveActivity(getActivity().getPackageManager()) != null) {
-                startActivityForResult(takePictureIntent, Constants.REQUEST_IMAGE_CAPTURE);
+            dispatchTakePictureIntent();
+        }
+    }
+
+    private void dispatchTakePictureIntent() {
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+
+        try {
+            createdFile = createImageFile();
+            currentPhotoPath = createdFile.getAbsolutePath();
+            takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(createdFile));
+        } catch (IOException e) {
+            createdFile = null;
+            currentPhotoPath = null;
+            e.printStackTrace();
+        }
+
+        startActivityForResult(takePictureIntent, Constants.REQUEST_IMAGE_CAPTURE);
+    }
+
+    private File createImageFile() throws IOException {
+        //String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        //String imageFileName = timeStamp + ".png";
+        pinId = UUID.randomUUID() + "";
+        String imageFileName = pinId + ".png";
+        File file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES) + "/pinit/", imageFileName);
+        if (!file.exists()) {
+            try {
+                file.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         }
+        return file;
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == Constants.REQUEST_IMAGE_CAPTURE && resultCode == getActivity().RESULT_OK) {
-            Bundle extras = data.getExtras();
+            if (currentPhotoPath != null) {
+                Constants.Log("path: "  + createdFile.getAbsolutePath());
+                MainActivity mainActivity = (MainActivity) getActivity();
+                mainActivity.uploadImage(createdFile, pinId);
+                addPin();
+
+                //add to gallery
+                Intent mediaScanIntent = new Intent("android.intent.action.MEDIA_SCANNER_SCAN_FILE");
+                Uri contentUri = Uri.fromFile(createdFile);
+                mediaScanIntent.setData(contentUri);
+                getContext().sendBroadcast(mediaScanIntent);
+
+                currentPhotoPath = null;
+            }
+
+            /*Bundle extras = data.getExtras();
             Bitmap bitmap = (Bitmap) extras.get("data");
 
             //http://stackoverflow.com/questions/649154/save-bitmap-to-location
@@ -237,23 +277,42 @@ public class AddTab extends Fragment implements View.OnClickListener {
             }
             pinId = UUID.randomUUID() + "";
             filename = pinId + ".png";
-            File sd = Environment.getExternalStorageDirectory();
-            File dest = new File(sd, filename);
+            File bitmapFile = null;
 
             try {
-                FileOutputStream out = new FileOutputStream(dest);
-                bitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
-                out.flush();
-                out.close();
-            } catch (Exception e) {
+                ByteArrayOutputStream bos = new ByteArrayOutputStream(bitmap.getByteCount());
+                bitmap.compress(Bitmap.CompressFormat.PNG, 80, bos);
+                byte[] bArr = bos.toByteArray();
+                bos.flush();
+                bos.close();
+
+                FileOutputStream fos = getContext().openFileOutput(filename, Context.MODE_WORLD_WRITEABLE);
+                fos.write(bArr);
+                fos.flush();
+                fos.close();
+
+                bitmapFile = new File(getContext().getFilesDir().getAbsolutePath(), filename);
+            }
+            catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
                 e.printStackTrace();
             }
 
+            Bitmap original = bitmap;
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            original.compress(Bitmap.CompressFormat.PNG, 100, out);
+            Bitmap decoded = BitmapFactory.decodeStream(new ByteArrayInputStream(out.toByteArray()));
+
+            Log.e("Original   dimensions", original.getWidth() + " " + original.getHeight());
+            Log.e("Compressed dimensions", decoded.getWidth()+" "+decoded.getHeight());
+
             MainActivity mainActivity = (MainActivity) getActivity();
-            mainActivity.uploadImage(dest, pinId);
-            addPin();
+            mainActivity.uploadImage(bitmapFile, pinId);
+            addPin();*/
         }
     }
+
 
     //http://stackoverflow.com/questions/8854359/exception-open-failed-eacces-permission-denied-on-android
     /**

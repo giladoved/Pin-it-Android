@@ -158,6 +158,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
     public void uploadImage(File file, String pinId) {
         try {
+            Constants.Log("file: " + file.length());
+            Constants.Log("pinId: " + pinId);
             transferUtility.upload(Constants.BUCKET_NAME, pinId, file, CannedAccessControlList.PublicRead);
         } catch (Exception x) {
             Constants.Error("Error in uploading: " + x.getMessage());

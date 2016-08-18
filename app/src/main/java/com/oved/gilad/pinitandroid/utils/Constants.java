@@ -28,6 +28,8 @@ public class Constants {
     public static final String NAME_KEY = "name";
     public static final String DATE_KEY = "date";
 
+    private static final String BITMAP_STORAGE_KEY = "viewbitmap";
+
     public static final int PERMISSIONS_REQUEST_LOCATION = 51;
 
     public static final int REQUEST_EXTERNAL_STORAGE = 11;
