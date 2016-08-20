@@ -48,6 +48,14 @@ public class ListTab extends ListFragment {
         return inflatedView;
     }
 
+    @Override
+    public void setMenuVisibility(final boolean visible) {
+        super.setMenuVisibility(visible);
+        if (visible) {
+            loadPins();
+        }
+    }
+
     public void loadPins() {
         SharedPreferences settings = getActivity().getSharedPreferences(Constants.PREFS_NAME, 0);
         String userId = settings.getString(Constants.ID_KEY, null);
