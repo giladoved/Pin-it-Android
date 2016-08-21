@@ -155,8 +155,6 @@ public class ListViewAdapter extends ArrayAdapter<Pin> {
 
     @Override
     public void notifyDataSetChanged() {
-        this.setNotifyOnChange(false);
-
         this.sort(new Comparator<Pin>() {
             @Override
             public int compare(Pin p1, Pin p2) {
@@ -164,6 +162,6 @@ public class ListViewAdapter extends ArrayAdapter<Pin> {
             }
         });
 
-        this.setNotifyOnChange(true);
+        super.notifyDataSetChanged();
     }
 }

@@ -14,7 +14,12 @@ import com.oved.gilad.pinitandroid.models.Pin;
 import com.oved.gilad.pinitandroid.rest.ApiServiceBuilder;
 import com.oved.gilad.pinitandroid.utils.Constants;
 
+import org.joda.time.DateTime;
+import org.joda.time.format.ISODateTimeFormat;
+
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import retrofit2.Call;
@@ -72,6 +77,15 @@ public class ListTab extends ListFragment {
                         if (pins.size() == 0) {
                             return;
                         }
+
+                        Collections.sort(pins,new Comparator<Pin>() {
+                            @Override
+                            public int compare(Pin p1, Pin p2) {
+                                DateTime date1 = ISODateTimeFormat.dateTime().parseDateTime(p1.getDateCreated());
+                                DateTime date2 = ISODateTimeFormat.dateTime().parseDateTime(p2.getDateCreated());
+                                return date2.compareTo(date1);
+                            }
+                        });
 
                         getListView().setAdapter(new ListViewAdapter(getContext(), pins));
                     } else {
