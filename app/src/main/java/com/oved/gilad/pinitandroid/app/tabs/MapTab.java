@@ -15,11 +15,13 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.maps.android.clustering.Cluster;
+import com.google.maps.android.clustering.ClusterManager;
 import com.oved.gilad.pinitandroid.R;
+import com.oved.gilad.pinitandroid.app.custom.CustomIconRenderer;
+import com.oved.gilad.pinitandroid.app.custom.PinCluster;
 import com.oved.gilad.pinitandroid.app.pages.MainActivity;
 import com.oved.gilad.pinitandroid.models.Pin;
 import com.oved.gilad.pinitandroid.rest.ApiServiceBuilder;
@@ -29,6 +31,7 @@ import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,10 +45,9 @@ public class MapTab extends Fragment {
     List<Pin> pins;
     MapView mapView;
     GoogleMap map;
-    List<Marker> markers;
-    Map<Marker, Pin> markersToPins;
-    Map<String, Marker> pinsToMarkers;
     Location location;
+    ClusterManager<PinCluster> clusterManager;
+    CustomIconRenderer customIconRenderer;
 
     Bus bus;
     MainActivity mainActivity;
@@ -59,9 +61,7 @@ public class MapTab extends Fragment {
 
         mainActivity = (MainActivity) getActivity();
 
-        markers = new ArrayList<>();
-        markersToPins = new HashMap<>();
-        pinsToMarkers = new HashMap<>();
+        pins = new ArrayList<>();
 
         mapView = (MapView) inflatedView.findViewById(R.id.mapTabMap);
         mapView.onCreate(savedInstanceState);
@@ -76,6 +76,53 @@ public class MapTab extends Fragment {
 
         location = mainActivity.getLocation();
         positionToLocation();
+
+        clusterManager = new ClusterManager<>(getContext(), map);
+
+        map.setOnCameraChangeListener(clusterManager);
+        map.setOnMarkerClickListener(clusterManager);
+        customIconRenderer = new CustomIconRenderer(getContext(), map, clusterManager);
+        clusterManager.setRenderer(customIconRenderer);
+
+        map.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
+            @Override
+            public void onInfoWindowClick(Marker marker) {
+                Tracker tracker = mainActivity.getTracker();
+                tracker.send(new HitBuilders.EventBuilder()
+                        .setCategory("Pin")
+                        .setAction("Clicked")
+                        .build());
+
+                Pin chosenPin = customIconRenderer.getClusterItem(marker).getPin();
+                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                builder.setMessage(chosenPin.getDescription() + "\n" + chosenPin.getDirections())
+                        .setTitle(chosenPin.getTitle())
+                        .setCancelable(false)
+                        .setPositiveButton("Okay", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                dialog.dismiss();
+                            }
+                        });
+                AlertDialog alert = builder.create();
+                alert.show();
+            }
+        });
+
+        clusterManager.setOnClusterClickListener(new ClusterManager.OnClusterClickListener<PinCluster>() {
+            @Override
+            public boolean onClusterClick(final Cluster<PinCluster> cluster) {
+                Tracker tracker = mainActivity.getTracker();
+                tracker.send(new HitBuilders.EventBuilder()
+                        .setCategory("Pin")
+                        .setAction("Cluster")
+                        .build());
+
+                map.animateCamera(CameraUpdateFactory.newLatLngZoom(
+                        cluster.getPosition(), (float) Math.floor(map
+                                .getCameraPosition().zoom + 1)), 300, null);
+                return true;
+            }
+        });
 
         loadPins();
 
@@ -97,45 +144,11 @@ public class MapTab extends Fragment {
 
                         for (Pin pin : pins) {
                             if (pin != null) {
-                                LatLng pinLocation = new LatLng(pin.getLat(), pin.getLng());
-                                Marker marker = map.addMarker(new MarkerOptions()
-                                        .position(pinLocation)
-                                        .title(pin.getTitle())
-                                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.pin))
-                                        .snippet(pin.getDescription()));
-                                if (userId.equals(pin.getUserId())) {
-                                    marker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.pingrey));
-                                }
-
-                                markers.add(marker);
-                                markersToPins.put(marker, pin);
-                                pinsToMarkers.put(pin.getId(), marker);
+                                PinCluster clusterPin = new PinCluster(pin.getLat(), pin.getLng(), pin, userId);
+                                clusterManager.addItem(clusterPin);
                             }
                         }
-
-                        map.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
-                            @Override
-                            public void onInfoWindowClick(Marker marker) {
-                                Pin chosenPin = markersToPins.get(marker);
-                                Tracker tracker = mainActivity.getTracker();
-                                tracker.send(new HitBuilders.EventBuilder()
-                                        .setCategory("Pin")
-                                        .setAction("Clicked")
-                                        .build());
-
-                                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                                builder.setMessage(chosenPin.getDescription() + "\n" + chosenPin.getDirections())
-                                        .setTitle(chosenPin.getTitle())
-                                        .setCancelable(false)
-                                        .setPositiveButton("Okay", new DialogInterface.OnClickListener() {
-                                            public void onClick(DialogInterface dialog, int id) {
-                                                dialog.dismiss();
-                                            }
-                                        });
-                                AlertDialog alert = builder.create();
-                                alert.show();
-                            }
-                        });
+                        clusterManager.cluster();
                     } else {
                         Constants.Error("Error getting the pins");
                     }
@@ -149,13 +162,25 @@ public class MapTab extends Fragment {
         }
     }
 
+    @Override
+    public void setMenuVisibility(final boolean visible) {
+        super.setMenuVisibility(visible);
+        if (visible && getActivity() != null) {
+            loadPins();
+        }
+    }
+
     @Subscribe
     public void getChosenMarker(String pid) {
-        Marker chosenMarker = pinsToMarkers.get(pid);
-        Constants.Log("Chosen marker: " + chosenMarker.getTitle());
-        chosenMarker.showInfoWindow();
-        Pin pin = markersToPins.get(chosenMarker);
-        map.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(pin.getLat(), pin.getLng()), 13));
+        if (pins.size() == 0) {
+            loadPins();
+        }
+
+        for (Pin pin : pins) {
+            if (pid.equals(pin.getId())) {
+                map.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(pin.getLat(), pin.getLng()), 13));
+            }
+        }
     }
 
     public void positionToLocation() {

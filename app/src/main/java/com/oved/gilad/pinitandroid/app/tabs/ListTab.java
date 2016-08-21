@@ -15,8 +15,6 @@ import com.oved.gilad.pinitandroid.rest.ApiServiceBuilder;
 import com.oved.gilad.pinitandroid.utils.Constants;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 import retrofit2.Call;
@@ -74,13 +72,6 @@ public class ListTab extends ListFragment {
                         if (pins.size() == 0) {
                             return;
                         }
-
-                        Collections.sort(pins, new Comparator<Pin>() {
-                            @Override
-                            public int compare(Pin o1, Pin o2) {
-                                return o1.getDateCreated().compareTo(o2.getDateCreated());
-                            }
-                        });
 
                         getListView().setAdapter(new ListViewAdapter(getContext(), pins));
                     } else {

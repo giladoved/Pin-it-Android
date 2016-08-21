@@ -125,7 +125,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                 }
 
                 Constants.Log("Setting screen: " + tabName);
-                tracker.setScreenName("Image~" + tabName);
+                tracker.setScreenName("Tab: " + tabName);
                 tracker.send(new HitBuilders.ScreenViewBuilder().build());
 
                 //hides keyboard

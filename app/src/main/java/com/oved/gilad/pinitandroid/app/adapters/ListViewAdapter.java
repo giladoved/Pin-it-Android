@@ -2,7 +2,6 @@ package com.oved.gilad.pinitandroid.app.adapters;
 
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.SharedPreferences;
 import android.graphics.Point;
 import android.support.v7.app.AlertDialog;
 import android.text.format.DateFormat;
@@ -28,12 +27,12 @@ import org.joda.time.DateTime;
 import org.joda.time.format.ISODateTimeFormat;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 
 /**
  * Created by gilad on 7/23/16.
  */
 public class ListViewAdapter extends ArrayAdapter<Pin> {
-    int position;
     ArrayList<Pin> pins;
 
     public ListViewAdapter(Context context, ArrayList<Pin> pins) {
@@ -60,6 +59,7 @@ public class ListViewAdapter extends ArrayAdapter<Pin> {
         DateTime dateCreated = ISODateTimeFormat.dateTime().parseDateTime(pin.getDateCreated());
         String formattedDateCreated = DateFormat.format("MMM d h:mm aa", dateCreated.getMillis()).toString();
         dateCreatedTxt.setText(formattedDateCreated);
+        pin.setDate(dateCreated);
 
         ImageButton navigateBtn = (ImageButton) convertView.findViewById(R.id.navigateBtn);
         navigateBtn.setOnClickListener(new View.OnClickListener() {
@@ -113,7 +113,7 @@ public class ListViewAdapter extends ArrayAdapter<Pin> {
             }
         });
 
-        convertView.setOnLongClickListener(new View.OnLongClickListener() {
+        /*convertView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
@@ -148,8 +148,22 @@ public class ListViewAdapter extends ArrayAdapter<Pin> {
 
                 return true;
             }
-        });
+        });*/
 
         return convertView;
+    }
+
+    @Override
+    public void notifyDataSetChanged() {
+        this.setNotifyOnChange(false);
+
+        this.sort(new Comparator<Pin>() {
+            @Override
+            public int compare(Pin p1, Pin p2) {
+                return p1.getDate().compareTo(p2.getDate());
+            }
+        });
+
+        this.setNotifyOnChange(true);
     }
 }

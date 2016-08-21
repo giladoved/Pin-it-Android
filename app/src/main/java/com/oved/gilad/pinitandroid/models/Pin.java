@@ -6,6 +6,8 @@ package com.oved.gilad.pinitandroid.models;
 
 import android.graphics.Bitmap;
 
+import org.joda.time.DateTime;
+
 import javax.annotation.Generated;
 
 @Generated("org.jsonschema2pojo")
@@ -23,6 +25,7 @@ public class Pin {
     private Double lng;
     private String date_created;
     private Bitmap bitmap;
+    private DateTime date;
 
     /**
      * @return The id
@@ -231,5 +234,23 @@ public class Pin {
      */
     public void setBitmap(Bitmap bitmap) {
         this.bitmap = bitmap;
+    }
+
+    /**
+     *
+     * @return
+     * The date
+     */
+    public DateTime getDate() {
+        return date;
+    }
+
+    /**
+     *
+     * @param date
+     * The date
+     */
+    public void setDate(DateTime date) {
+        this.date = date;
     }
 }
